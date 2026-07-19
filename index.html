@@ -3,14 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Site no Termux</title>
+    <title>Área Restrita - Login</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #121212; color: #fff; padding-top: 50px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0f0c20; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-container { background: #15122c; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; border: 1px solid #252147; }
+        h2 { margin-bottom: 24px; color: #00ff88; font-size: 28px; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; color: #aaa; font-size: 14px; }
+        input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #252147; background: #0f0c20; color: #fff; font-size: 16px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #00ff88; box-shadow: 0 0 8px rgba(0,255,136,0.2); }
+        button { width: 100%; padding: 14px; background: #00ff88; color: #0f0c20; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #00cc6e; box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+        #message { margin-top: 15px; font-size: 14px; font-weight: bold; }
+        .success { color: #00ff88; }
+        .error { color: #ff3333; }
+        .dashboard { display: none; }
     </style>
 </head>
 <body>
-    <h1>Olá, Mundo!</h1>
-    <p>Este site foi criado pelo Termux e está hospedado no GitHub Pages.</p>
+
+    <div class="login-container" id="loginBox">
+        <h2>Acesso Seguro</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label for="username">Usuário</label>
+                <input type="text" id="username" required autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Entrar</button>
+        </form>
+        <p id="message"></p>
+    </div>
+
+    <div class="login-container dashboard" id="dashboardBox">
+        <h2>Bem-vindo, Administrador!</h2>
+        <p style="color: #aaa; margin-bottom: 20px;">Você acessou a área protegida com sucesso.</p>
+        <button onclick="handleLogout()" style="background: #ff3333; color: #fff;">Sair do Painel</button>
+    </div>
+
+    <script>
+        // Configuração de segurança padrão (Usuário: admin | Senha: 123)
+        // Em produção, isso seria validado por uma API externa criptografada.
+        const USER_ALLOWED = "admin";
+        const PASS_ALLOWED = "123"; 
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const userIn = document.getElementById('username').value.trim();
+            const passIn = document.getElementById('password').value;
+            const msg = document.getElementById('message');
+
+            // Proteção básica contra ataques de força bruta ou campos vazios
+            if (!userIn || !passIn) {
+                msg.className = "error";
+                msg.innerText = "Preencha todos os campos obrigatórios.";
+                return;
+            }
+
+            // Validação estrita
+            if (userIn === USER_ALLOWED && passIn === PASS_ALLOWED) {
+                msg.className = "success";
+                msg.innerText = "Acesso autorizado! Carregando...";
+                
+                setTimeout(() => {
+                    document.getElementById('loginBox').style.display = 'none';
+                    document.getElementById('dashboardBox').style.display = 'block';
+                }, 1000);
+            } else {
+                msg.className = "error";
+                msg.innerText = "Usuário ou senha incorretos. Acesso negado.";
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('username').value = "";
+            document.getElementById('password').value = "";
+            document.getElementById('message').innerText = "";
+            document.getElementById('dashboardBox').style.display = 'none';
+            document.getElementById('loginBox').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
 

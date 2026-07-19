@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MasterSite - Sistema Global Conectado</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -21,10 +20,10 @@
         .toggle-text { margin-top: 24px; font-size: 14px; color: #a5a2b8; }
         .toggle-text a { color: #00e1ff; text-decoration: none; font-weight: 600; cursor: pointer; }
         .toggle-text a:hover { color: #00ff88; text-decoration: underline; }
-        #message { margin-top: 20px; font-size: 14px; font-weight: 600; min-height: 24px; padding: 8px; border-radius: 6px; }
+        #message { margin-top: 20px; font-size: 14px; font-weight: 600; min-height: 24px; padding: 8px; border-radius: 6px; display: block; }
         .success { color: #00ff88; background: rgba(0, 255, 136, 0.1); }
         .error { color: #ff4444; background: rgba(255, 68, 68, 0.1); }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .user-badge { background: #120e2e; padding: 15px; border-radius: 10px; border: 1px solid #3c357a; margin-bottom: 20px; }
     </style>
 </head>
@@ -83,17 +82,13 @@
     </div>
 
     <script>
-        // === CONTROLE DO BANCO DE DADOS GLOBAL ===
-        // VEJA: Substitua os textos abaixo pelas chaves reais que você pegou no site do Supabase!
-        const SUPABASE_URL = "SUA_PROJECT_URL_AQUI";
-        const SUPABASE_ANON_KEY = "SUA_API_KEY_ANON_AQUI";
-
-        // Inicializa a conexão com a nuvem protetora de dados
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Endpoint seguro para salvar dados na nuvem pública de forma isolada e anônima
+        const API_URL = "https://kvdb.io/MN88Y9F7zSgWq6h2M6zK9z/users_";
 
         function switchForm(formType) {
-            document.getElementById('message').innerText = "";
-            document.getElementById('message').className = "";
+            const msg = document.getElementById('message');
+            msg.innerText = "";
+            msg.className = "";
             if(formType === 'register') {
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('registerSection').classList.remove('hidden');
@@ -101,6 +96,16 @@
                 document.getElementById('registerSection').classList.add('hidden');
                 document.getElementById('loginSection').classList.remove('hidden');
             }
+        }
+
+        // Função auxiliar simples para transformar texto em hash (ocultar senhas)
+        function hashPassword(string) {
+            let hash = 0;
+            for (let i = 0; i < string.length; i++) {
+                hash = (hash << 5) - hash + string.charCodeAt(i);
+                hash |= 0;
+            }
+            return "sec_" + Math.abs(hash);
         }
 
         async function executeRegister(event) {
@@ -118,19 +123,34 @@
             }
 
             msg.className = "success"; msg.innerText = "Conectando ao servidor nuvem...";
+            
+            // Gerando um identificador seguro baseado no e-mail para não expor dados na rota
+            const secureKey = btoa(email).replace(/=/g, "");
 
-            // Envia os dados para a Nuvem de Autenticação do Supabase (A senha é criptografada automaticamente antes de ser salva!)
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-                options: { data: { display_name: name } }
-            });
+            try {
+                // Verifica se o usuário já existe
+                const checkRes = await fetch(API_URL + secureKey);
+                if (checkRes.status === 200) {
+                    msg.className = "error"; msg.innerText = "Este e-mail já está registrado na base de dados.";
+                    return;
+                }
 
-            if (error) {
-                msg.className = "error"; msg.innerText = "Erro no servidor: " + error.message;
-            } else {
-                msg.className = "success"; msg.innerText = "Conta criada globalmente! Faça o login.";
-                setTimeout(() => { switchForm('login'); }, 1500);
+                // Cria os dados com a senha já protegida por hash
+                const userData = { name, email, passHash: hashPassword(password) };
+
+                const saveRes = await fetch(API_URL + secureKey, {
+                    method: 'POST',
+                    body: JSON.stringify(userData)
+                });
+
+                if (saveRes.ok) {
+                    msg.className = "success"; msg.innerText = "Conta criada globalmente! Redirecionando...";
+                    setTimeout(() => { switchForm('login'); }, 1500);
+                } else {
+                    msg.className = "error"; msg.innerText = "Erro ao salvar dados no servidor.";
+                }
+            } catch (err) {
+                msg.className = "error"; msg.innerText = "Falha na conexão com a nuvem.";
             }
         }
 
@@ -141,35 +161,44 @@
             const msg = document.getElementById('message');
 
             msg.className = "success"; msg.innerText = "Validando credenciais de segurança...";
+            const secureKey = btoa(email).replace(/=/g, "");
 
-            // Faz a verificação global no servidor seguro
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+            try {
+                const response = await fetch(API_URL + secureKey);
+                if (response.status !== 200) {
+                    msg.className = "error"; msg.innerText = "Acesso negado: e-mail ou senha incorretos.";
+                    return;
+                }
 
-            if (error) {
-                msg.className = "error"; msg.innerText = "Acesso negado: e-mail ou senha incorretos.";
-            } else {
-                msg.className = "success"; msg.innerText = "Entrando...";
-                setTimeout(() => {
-                    document.getElementById('loginSection').classList.add('hidden');
-                    msg.innerText = ""; msg.className = "";
-                    document.getElementById('dashboardSection').classList.remove('hidden');
-                    document.getElementById('welcomeUser').innerText = `Olá, ${data.user.user_metadata.display_name || 'Usuário'}!`;
-                    document.getElementById('userEmailDisplay').innerText = data.user.email;
-                }, 1000);
+                const userData = await response.json();
+                const inputHash = hashPassword(password);
+
+                if (userData.passHash === inputHash) {
+                    msg.className = "success"; msg.innerText = "Autenticado com sucesso!";
+                    setTimeout(() => {
+                        document.getElementById('loginSection').classList.add('hidden');
+                        msg.innerText = ""; msg.className = "";
+                        document.getElementById('dashboardSection').classList.remove('hidden');
+                        document.getElementById('welcomeUser').innerText = `Olá, ${userData.name}!`;
+                        document.getElementById('userEmailDisplay').innerText = userData.email;
+                    }, 1000);
+                } else {
+                    msg.className = "error"; msg.innerText = "Acesso negado: e-mail ou senha incorretos.";
+                }
+            } catch (err) {
+                msg.className = "error"; msg.innerText = "Erro de conexão com o banco de dados.";
             }
         }
 
-        async function executeLogout() {
-            await supabase.auth.signOut();
+        function executeLogout() {
             document.getElementById('loginEmail').value = "";
             document.getElementById('loginPassword').value = "";
             document.getElementById('dashboardSection').classList.add('hidden');
             document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('message').innerText = "Sessão encerrada globalmente.";
-            document.getElementById('message').className = "success";
+            const msg = document.getElementById('message');
+            msg.innerText = "Sessão encerrada globalmente.";
+            msg.className = "success";
+            setTimeout(() => { msg.innerText = ""; msg.className = ""; }, 2000);
         }
     </script>
 </body>

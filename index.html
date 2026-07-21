@@ -1,3 +1,4 @@
+cat << 'EOF' > index.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,7 +21,7 @@
         .btn-danger { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #ef4444; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 20px; }
         .toggle-text { margin-top: 16px; font-size: 13px; color: #94a3b8; }
         .toggle-btn { background: none; border: none; color: #00b4d8; font-weight: 600; cursor: pointer; font-size: 13px; text-decoration: underline; }
-        #msg { margin-top: 20px; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; display: none; }
+        #msg { margin-top: 20px; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; word-break: break-word; }
         .msg-success { display: block !important; color: #00ff88; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.2); }
         .msg-error { display: block !important; color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
         .user-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 20px; margin: 20px 0 10px 0; text-align: left; }
@@ -117,7 +118,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Funções de UI
         function showMsg(text, type) {
             const msg = document.getElementById('msg');
             msg.innerText = text;
@@ -130,52 +130,36 @@
             msg.className = '';
         }
 
-        function switchForm(type) {
+        document.getElementById('btnGoToReg').onclick = () => {
             clearMsg();
-            if (type === 'reg') {
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('regSection').classList.remove('hidden');
-            } else {
-                document.getElementById('regSection').classList.add('hidden');
-                document.getElementById('loginSection').classList.remove('hidden');
-            }
-        }
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('regSection').classList.remove('hidden');
+        };
 
-        // Event Listeners para garantir funcionamento nos cliques
-        document.getElementById('btnGoToReg').addEventListener('click', () => switchForm('reg'));
-        document.getElementById('btnGoToLogin').addEventListener('click', () => switchForm('login'));
+        document.getElementById('btnGoToLogin').onclick = () => {
+            clearMsg();
+            document.getElementById('regSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+        };
 
-        // CADASTRO
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
+        document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
 
-            if (!email.endsWith('@gmail.com')) { 
-                showMsg('Utilize um e-mail @gmail.com válido.', 'error'); 
-                return; 
-            }
-
-            showMsg('Criando conta...', 'success');
+            showMsg('Processando cadastro...', 'success');
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await updateProfile(userCredential.user, { displayName: name });
                 showMsg('Conta criada com sucesso!', 'success');
             } catch (err) {
-                if (err.code === 'auth/email-already-in-use') {
-                    showMsg('Este e-mail já está em uso (máximo 1 conta).', 'error');
-                } else if (err.code === 'auth/weak-password') {
-                    showMsg('A senha deve ter pelo menos 6 caracteres.', 'error');
-                } else {
-                    showMsg('Erro ao cadastrar: ' + err.message, 'error');
-                }
+                showMsg('Erro (' + err.code + '): ' + err.message, 'error');
             }
-        });
+        };
 
-        // LOGIN
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
@@ -184,42 +168,35 @@
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                showMsg('Login realizado com sucesso!', 'success');
+                showMsg('Login efetuado!', 'success');
             } catch (err) {
-                showMsg('E-mail ou senha incorretos.', 'error');
+                showMsg('Erro (' + err.code + '): ' + err.message, 'error');
             }
-        });
+        };
 
-        // REDEFINIR SENHA (ESQUECI A SENHA)
-        document.getElementById('btnForgot').addEventListener('click', async () => {
+        document.getElementById('btnForgot').onclick = async () => {
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
 
             if (!email) {
-                showMsg('Preencha seu e-mail no campo acima antes de clicar.', 'error');
+                showMsg('Digite o e-mail no campo acima antes de clicar em Esqueci a senha.', 'error');
                 return;
             }
 
-            showMsg('Enviando e-mail de recuperação...', 'success');
+            showMsg('Enviando e-mail de redefinição...', 'success');
 
             try {
                 await sendPasswordResetEmail(auth, email);
-                showMsg('E-mail enviado! Verifique sua caixa de entrada/spam no Gmail.', 'success');
+                showMsg('E-mail enviado! Verifique a caixa de entrada ou spam.', 'success');
             } catch (err) {
-                if (err.code === 'auth/user-not-found') {
-                    showMsg('Nenhuma conta cadastrada com este e-mail.', 'error');
-                } else {
-                    showMsg('Erro ao enviar e-mail: ' + err.message, 'error');
-                }
+                showMsg('Erro (' + err.code + '): ' + err.message, 'error');
             }
-        });
+        };
 
-        // LOGOUT
-        document.getElementById('btnLogout').addEventListener('click', async () => {
+        document.getElementById('btnLogout').onclick = async () => {
             await signOut(auth);
             clearMsg();
-        });
+        };
 
-        // MONITOR DE SESSÃO
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('loginSection').classList.add('hidden');
@@ -235,4 +212,5 @@
     </script>
 </body>
 </html>
+EOF
 

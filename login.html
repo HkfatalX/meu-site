@@ -1,10 +1,10 @@
-cat << 'EOF' > index.html
+cat << 'EOF' > login.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MasterSite - Sistema Global Conectado</title>
+    <title>MasterSite - Login & Cadastro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -79,7 +79,6 @@ cat << 'EOF' > index.html
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // CONEXÃO OFICIAL COM SEU FIREBASE
         const firebaseConfig = {
             databaseURL: "https://site-ec6fd-default-rtdb.firebaseio.com/"
         };
@@ -125,11 +124,9 @@ cat << 'EOF' > index.html
 
                 await set(ref(db, 'users/' + key), { name, email, passHash: btoa(password) });
                 msg.className = "success"; msg.innerText = "Conta criada! Indo para o login...";
-                
-                // Redireciona para o login após sucesso
                 setTimeout(() => { switchForm('login'); }, 1500);
             } catch (err) {
-                msg.className = "error"; msg.innerText = "Erro no servidor. Verifique as Regras do Firebase.";
+                msg.className = "error"; msg.innerText = "Erro no servidor. Verifique as configurações.";
             }
         };
 

@@ -75,8 +75,8 @@
             <p class="subtitle">Crie seu perfil seguro</p>
             <form id="regForm" autocomplete="off">
                 <div class="input-group">
-                    <label>Nome de Usuário</label>
-                    <input type="text" id="regName" required placeholder="Seu nome ou nick" autocomplete="off">
+                    <label>Nome de Usuário Único</label>
+                    <input type="text" id="regName" required placeholder="Ex: LucasPro123" autocomplete="off">
                 </div>
                 <div class="input-group">
                     <label>E-mail</label>
@@ -92,17 +92,17 @@
         </div>
 
         <div id="googleSetupSection" class="hidden">
-            <p class="subtitle">Autorização concluída! Defina seus dados de acesso direto.</p>
+            <p class="subtitle">Finalize seu cadastro definindo um Nome Único e uma Senha.</p>
             <form id="googleSetupForm" autocomplete="off">
                 <div class="input-group">
-                    <label>Nome de Usuário</label>
-                    <input type="text" id="googleName" required placeholder="Seu nome no site" autocomplete="off">
+                    <label>Nome de Usuário Customizado</label>
+                    <input type="text" id="googleName" required placeholder="Ex: PlayerUm" autocomplete="off">
                 </div>
                 <div class="input-group">
-                    <label>Crie uma Senha para acesso com E-mail</label>
+                    <label>Crie uma Senha para o seu E-mail</label>
                     <input type="password" id="googlePassword" required placeholder="Mínimo 6 caracteres" autocomplete="new-password">
                 </div>
-                <button type="submit" class="btn-primary">Concluir e Ir para o Painel</button>
+                <button type="submit" class="btn-primary">Finalizar e Acessar Painel</button>
             </form>
         </div>
 
@@ -140,6 +140,13 @@
             GoogleAuthProvider,
             signInWithPopup
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGD9DZDFp0w9baW8jiqgGGfkasAvqreY0",
@@ -153,6 +160,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
         googleProvider.setCustomParameters({ prompt: 'select_account' });
 
@@ -172,35 +180,54 @@
             document.querySelectorAll('input').forEach(i => i.value = '');
         }
 
+        // FUNÇÃO PARA VERIFICAR SE NOME JÁ EXISTE NO BANCO
+        async function isUsernameTaken(username) {
+            const cleanName = username.trim().toLowerCase();
+            const userRef = doc(db, "usernames", cleanName);
+            const userSnap = await getDoc(userRef);
+            return userSnap.exists();
+        }
+
+        // FUNÇÃO PARA REGISTRAR O NOME NO BANCO DE DADOS
+        async function saveUsername(username, uid) {
+            const cleanName = username.trim().toLowerCase();
+            await setDoc(doc(db, "usernames", cleanName), {
+                uid: uid,
+                originalName: username.trim()
+            });
+        }
+
         // ENTRAR COM GOOGLE
         document.getElementById('btnGoogleLogin').onclick = async () => {
             clearMsg();
-            showMsg('Aguardando autorização do Google...', 'success');
+            showMsg('Conectando ao Google...', 'success');
             try {
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
 
-                // Se a conta já possui nome, redireciona ao painel imediatamente
-                if (user.displayName) {
-                    showMsg('Autorizado com sucesso!', 'success');
+                // Verifica no banco se este usuário já completou o perfil com nome customizado
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+
+                if (userDoc.exists() && userDoc.data().hasSetupCompleted) {
+                    showMsg('Bem-vindo de volta!', 'success');
                 } else {
-                    // Se é o primeiro acesso, abre o setup de perfil e senha
+                    // Se não tiver concluído, abre a tela de setup
                     document.getElementById('loginSection').classList.add('hidden');
                     document.getElementById('regSection').classList.add('hidden');
                     document.getElementById('googleSetupSection').classList.remove('hidden');
-                    showMsg('Autorizado! Defina seu nome e senha para acesso via e-mail.', 'success');
+                    showMsg('Autorizado! Escolha um Nome de Usuário único e crie sua senha.', 'success');
                 }
             } catch (err) {
-                await signOut(auth); // Garante que não crie sessão se falhar/cancelar
+                await signOut(auth);
                 if (err.code === 'auth/popup-closed-by-user') {
-                    showMsg('A autorização do Google foi cancelada.', 'error');
+                    showMsg('Autorização cancelada.', 'error');
                 } else {
-                    showMsg('Erro na autorização: ' + err.message, 'error');
+                    showMsg('Erro no login: ' + err.message, 'error');
                 }
             }
         };
 
-        // SETUP DE NOME E SENHA (PARA CONTAS GOOGLE)
+        // SALVAR NOME E SENHA APÓS GOOGLE
         document.getElementById('googleSetupForm').onsubmit = async (e) => {
             e.preventDefault();
             const name = document.getElementById('googleName').value.trim();
@@ -211,25 +238,51 @@
                 return;
             }
 
-            try {
-                const user = auth.currentUser;
-                await updateProfile(user, { displayName: name });
+            showMsg('Verificando nome de usuário...', 'success');
 
+            try {
+                // Checa se o nome de usuário já pertence a alguém
+                const taken = await isUsernameTaken(name);
+                if (taken) {
+                    showMsg('Este nome de usuário já está em uso por outra pessoa. Escolha outro!', 'error');
+                    return;
+                }
+
+                const user = auth.currentUser;
+
+                // Atualiza perfil e tenta vincular/definir senha
+                await updateProfile(user, { displayName: name });
+                
                 try {
                     await updatePassword(user, password);
-                } catch (passErr) {
+                } catch (pErr) {
                     const credential = EmailAuthProvider.credential(user.email, password);
                     await linkWithCredential(user, credential);
                 }
 
-                showMsg('Perfil ativado!', 'success');
+                // Salva o nome e status no Firestore
+                await saveUsername(name, user.uid);
+                await setDoc(doc(db, "users", user.uid), {
+                    displayName: name,
+                    email: user.email,
+                    hasSetupCompleted: true
+                });
+
+                showMsg('Cadastro finalizado com sucesso!', 'success');
                 clearInputs();
+
+                // Atualiza tela para o painel
+                document.getElementById('googleSetupSection').classList.add('hidden');
+                document.getElementById('dashSection').classList.remove('hidden');
+                document.getElementById('welcomeUser').innerText = name;
+                document.getElementById('userEmailDisplay').innerText = user.email;
+
             } catch (err) {
                 showMsg('Erro ao salvar dados: ' + err.message, 'error');
             }
         };
 
-        // CADASTRO DE E-MAIL/SENHA TRADICIONAL
+        // CADASTRO NORMAL POR E-MAIL E SENHA
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value.trim();
@@ -241,10 +294,27 @@
                 return;
             }
 
-            showMsg('Registrando conta...', 'success');
+            showMsg('Verificando disponibilidade do nome...', 'success');
+
             try {
+                const taken = await isUsernameTaken(name);
+                if (taken) {
+                    showMsg('Este nome de usuário já está em uso. Escolha outro!', 'error');
+                    return;
+                }
+
+                showMsg('Criando conta...', 'success');
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await updateProfile(userCredential.user, { displayName: name });
+                const user = userCredential.user;
+
+                await updateProfile(user, { displayName: name });
+                await saveUsername(name, user.uid);
+                await setDoc(doc(db, "users", user.uid), {
+                    displayName: name,
+                    email: email,
+                    hasSetupCompleted: true
+                });
+
                 showMsg('Conta criada com sucesso!', 'success');
                 clearInputs();
             } catch (err) {
@@ -252,19 +322,19 @@
             }
         };
 
-        // LOGIN TRADICIONAL POR E-MAIL/SENHA
+        // LOGIN TRADICIONAL
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
-            showMsg('Validando dados...', 'success');
+            showMsg('Entrando...', 'success');
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showMsg('Acesso permitido!', 'success');
                 clearInputs();
             } catch (err) {
-                showMsg('E-mail ou senha inválidos. Cadastre-se se ainda não tem uma conta.', 'error');
+                showMsg('E-mail ou senha incorretos.', 'error');
             }
         };
 
@@ -272,18 +342,18 @@
         document.getElementById('btnForgot').onclick = async () => {
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             if (!email) {
-                showMsg('Preencha o e-mail no campo acima primeiro.', 'error');
+                showMsg('Digite o e-mail no campo acima antes de clicar aqui.', 'error');
                 return;
             }
             try {
                 await sendPasswordResetEmail(auth, email);
-                showMsg('Link de redefinição enviado para o e-mail informado.', 'success');
+                showMsg('E-mail de recuperação enviado!', 'success');
             } catch (err) {
-                showMsg('Erro: ' + err.message, 'error');
+                showMsg('Erro ao enviar e-mail: ' + err.message, 'error');
             }
         };
 
-        // NAV ENTRE TELAS
+        // NAVEGAÇÃO
         document.getElementById('btnGoToReg').onclick = () => {
             clearMsg();
             clearInputs();
@@ -305,25 +375,30 @@
             clearInputs();
         };
 
-        // MONITORAMENTO DE ESTADO DE AUTENTICAÇÃO
-        onAuthStateChanged(auth, (user) => {
-            if (user && user.displayName) {
-                // Usuário totalmente autorizado e com perfil definido
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('regSection').classList.add('hidden');
-                document.getElementById('googleSetupSection').classList.add('hidden');
-                document.getElementById('dashSection').classList.remove('hidden');
+        // MONITOR DE SESSÃO
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().hasSetupCompleted) {
+                        document.getElementById('loginSection').classList.add('hidden');
+                        document.getElementById('regSection').classList.add('hidden');
+                        document.getElementById('googleSetupSection').classList.add('hidden');
+                        document.getElementById('dashSection').classList.remove('hidden');
 
-                document.getElementById('welcomeUser').innerText = user.displayName;
-                document.getElementById('userEmailDisplay').innerText = user.email;
-                clearInputs();
-            } else if (user && !user.displayName) {
-                // Usuário autenticado pelo Google, aguardando nome/senha
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('regSection').classList.add('hidden');
-                document.getElementById('googleSetupSection').classList.remove('hidden');
+                        document.getElementById('welcomeUser').innerText = userDoc.data().displayName || user.displayName;
+                        document.getElementById('userEmailDisplay').innerText = user.email;
+                        clearInputs();
+                    } else {
+                        // Não concluiu o setup
+                        document.getElementById('loginSection').classList.add('hidden');
+                        document.getElementById('regSection').classList.add('hidden');
+                        document.getElementById('googleSetupSection').classList.remove('hidden');
+                    }
+                } catch (e) {
+                    console.log("Aguardando definição de perfil...");
+                }
             } else {
-                // Deslogado
                 document.getElementById('dashSection').classList.add('hidden');
                 document.getElementById('googleSetupSection').classList.add('hidden');
                 document.getElementById('regSection').classList.add('hidden');

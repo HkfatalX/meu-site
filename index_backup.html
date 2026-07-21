@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterSite - Sistema Global Conectado</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: radial-gradient(circle at top right, #1a153a 0%, #0a0813 100%); color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
+        .card-container { background: rgba(13, 11, 26, 0.85); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.1); width: 100%; max-width: 430px; text-align: center; border: 1px solid #3c357a; backdrop-filter: blur(12px); }
+        h1 { color: #00ff88; font-size: 36px; margin-bottom: 4px; font-weight: 700; letter-spacing: 1.5px; text-shadow: 0 0 12px rgba(0, 255, 136, 0.3); }
+        p.subtitle { color: #8a88a5; font-size: 14px; margin-bottom: 28px; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; color: #b1aebd; font-size: 13px; font-weight: 500; }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #3c357a; background: #07050f; color: #fff; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #00ff88; box-shadow: 0 0 12px rgba(0,255,136,0.25); background: #0d0a1c; }
+        button { width: 100%; padding: 15px; background: linear-gradient(90deg, #00ff88 0%, #00e1ff 100%); color: #07050f; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s ease; margin-top: 12px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,255,136,0.4); }
+        .toggle-text { margin-top: 24px; font-size: 14px; color: #a5a2b8; }
+        .toggle-text a { color: #00e1ff; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .toggle-text a:hover { color: #00ff88; text-decoration: underline; }
+        #message { margin-top: 20px; font-size: 14px; font-weight: 600; min-height: 24px; padding: 8px; border-radius: 6px; display: block; }
+        .success { color: #00ff88; background: rgba(0, 255, 136, 0.1); }
+        .error { color: #ff4444; background: rgba(255, 68, 68, 0.1); }
+        .hidden { display: none !important; }
+        .user-badge { background: #120e2e; padding: 15px; border-radius: 10px; border: 1px solid #3c357a; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="card-container">
+        <h1>MasterSite</h1>
+        
+        <div id="loginSection">
+            <p class="subtitle">Acesso Global Autenticado</p>
+            <form onsubmit="executeLogin(event)">
+                <div class="input-group">
+                    <label>E-mail (Gmail)</label>
+                    <input type="email" id="loginEmail" required placeholder="seu-email@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" id="loginPassword" required placeholder="Digite sua senha">
+                </div>
+                <button type="submit">Entrar no Sistema</button>
+            </form>
+            <p class="toggle-text">Novo por aqui? <a onclick="switchForm('register')">Criar uma Conta</a></p>
+        </div>
+
+        <div id="registerSection" class="hidden">
+            <p class="subtitle">Registrar Conta no Servidor Nuvem</p>
+            <form onsubmit="executeRegister(event)">
+                <div class="input-group">
+                    <label>Nome de Usuário</label>
+                    <input type="text" id="regName" required placeholder="Ex: HkfatalX">
+                </div>
+                <div class="input-group">
+                    <label>Seu Gmail Real</label>
+                    <input type="email" id="regEmail" required placeholder="exemplo@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label>Definir Senha Forte</label>
+                    <input type="password" id="regPassword" required placeholder="Mínimo 6 caracteres">
+                </div>
+                <button type="submit" style="background: linear-gradient(90deg, #00e1ff 0%, #0088ff 100%); color: #fff;">Finalizar Cadastro</button>
+            </form>
+            <p class="toggle-text">Já possui registro? <a onclick="switchForm('login')">Fazer Login</a></p>
+        </div>
+
+        <div id="dashboardSection" class="hidden">
+            <p class="subtitle">Painel Inicial do Usuário</p>
+            <div class="user-badge">
+                <h2 id="welcomeUser">Bem-vindo!</h2>
+                <p id="userEmailDisplay" style="color: #00e1ff; font-size: 13px; margin-top: 4px;"></p>
+            </div>
+            <p style="color: #a5a2b8; margin-bottom: 25px; font-size: 14px;">Você está autenticado globalmente com segurança.</p>
+            <button onclick="executeLogout()" style="background: #ff4444; color: #fff; box-shadow: none;">Encerrar Sessão</button>
+        </div>
+
+        <p id="message"></p>
+    </div>
+
+    <script>
+        // Banco de dados descentralizado estável
+        const BASE_API = "https://api.restful-api.dev/objects";
+        const STORAGE_ROOM = "mastersite_global_v2_";
+
+        function switchForm(formType) {
+            document.getElementById('message').innerText = "";
+            document.getElementById('message').className = "";
+            if(formType === 'register') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('registerSection').classList.remove('hidden');
+            } else {
+                document.getElementById('registerSection').classList.add('hidden');
+                document.getElementById('loginSection').classList.remove('hidden');
+            }
+        }
+
+        // Criptografia reversível local para mascarar strings
+        function encodeData(str) {
+            return btoa(unescape(encodeURIComponent(str))).replace(/=/g, "");
+        }
+
+        async function executeRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const msg = document.getElementById('message');
+
+            if (!email.endsWith('@gmail.com')) {
+                msg.className = "error"; msg.innerText = "Utilize um e-mail @gmail.com válido."; return;
+            }
+            if (password.length < 6) {
+                msg.className = "error"; msg.innerText = "A senha deve conter no mínimo 6 caracteres."; return;
+            }
+
+            msg.className = "success"; msg.innerText = "Salvando credenciais na nuvem...";
+
+            try {
+                // Monta o payload seguro para o cluster público
+                const securePayload = {
+                    name: STORAGE_ROOM + encodeData(email),
+                    data: {
+                        userReal: name,
+                        mailReal: email,
+                        secretPass: encodeData(password)
+                    }
+                };
+
+                const response = await fetch(BASE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(securePayload)
+                });
+
+                if (response.ok) {
+                    msg.className = "success"; msg.innerText = "Conta criada globalmente! Redirecionando...";
+                    setTimeout(() => { switchForm('login'); }, 1500);
+                } else {
+                    msg.className = "error"; msg.innerText = "Instabilidade no barramento. Tente novamente.";
+                }
+            } catch (err) {
+                msg.className = "error"; msg.innerText = "Erro de resposta da nuvem distribuidora.";
+            }
+        }
+
+        async function executeLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            const msg = document.getElementById('message');
+
+            msg.className = "success"; msg.innerText = "Autenticando sessão global...";
+
+            try {
+                const response = await fetch(BASE_API);
+                const records = await response.json();
+                
+                const targetName = STORAGE_ROOM + encodeData(email);
+                // Procura o registro correspondente no nó público
+                const matchedUser = records.find(item => item.name === targetName);
+
+                if (matchedUser && matchedUser.data && matchedUser.data.secretPass === encodeData(password)) {
+                    msg.className = "success"; msg.innerText = "Acesso concedido!";
+                    
+                    const sessionData = { name: matchedUser.data.userReal, email: matchedUser.data.mailReal };
+                    localStorage.setItem('_mastersite_session', JSON.stringify(sessionData));
+
+                    setTimeout(() => {
+                        document.getElementById('loginSection').classList.add('hidden');
+                        msg.innerText = ""; msg.className = "";
+                        document.getElementById('dashboardSection').classList.remove('hidden');
+                        document.getElementById('welcomeUser').innerText = `Olá, ${sessionData.name}!`;
+                        document.getElementById('userEmailDisplay').innerText = sessionData.email;
+                    }, 1000);
+                } else {
+                    msg.className = "error"; msg.innerText = "E-mail ou senha incorretos.";
+                }
+            } catch (err) {
+                msg.className = "error"; msg.innerText = "Falha de conexão com os servidores centrais.";
+            }
+        }
+
+        function executeLogout() {
+            localStorage.removeItem('_mastersite_session');
+            document.getElementById('loginEmail').value = "";
+            document.getElementById('loginPassword').value = "";
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentSession = localStorage.getItem('_mastersite_session');
+            if (currentSession) {
+                const userData = JSON.parse(currentSession);
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('registerSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                document.getElementById('welcomeUser').innerText = `Olá, ${userData.name}!`;
+                document.getElementById('userEmailDisplay').innerText = userData.email;
+            }
+        });
+    </script>
+</body>
+</html>
+

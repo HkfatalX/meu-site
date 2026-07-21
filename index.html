@@ -19,7 +19,7 @@
         .btn-primary { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, #00ff88 0%, #00b4d8 100%); color: #08090e; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
         .btn-danger { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #ef4444; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 20px; }
         .toggle-text { margin-top: 16px; font-size: 13px; color: #94a3b8; }
-        .toggle-text button { background: none; border: none; color: #00b4d8; font-weight: 600; cursor: pointer; font-size: 13px; text-decoration: underline; }
+        .toggle-btn { background: none; border: none; color: #00b4d8; font-weight: 600; cursor: pointer; font-size: 13px; text-decoration: underline; }
         #msg { margin-top: 20px; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; display: none; }
         .msg-success { display: block !important; color: #00ff88; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.2); }
         .msg-error { display: block !important; color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
@@ -39,7 +39,7 @@
 
         <div id="loginSection">
             <p class="subtitle">Acesse sua conta para continuar</p>
-            <form onsubmit="executeLogin(event)">
+            <form id="loginForm">
                 <div class="input-group">
                     <label>E-mail (Gmail)</label>
                     <input type="email" id="loginEmail" required placeholder="seu-email@gmail.com">
@@ -47,16 +47,16 @@
                 <div class="input-group">
                     <label>Senha</label>
                     <input type="password" id="loginPassword" required placeholder="••••••••">
-                    <button type="button" class="forgot-btn" onclick="executeResetPassword()">Esqueci a senha</button>
+                    <button type="button" class="forgot-btn" id="btnForgot">Esqueci a senha</button>
                 </div>
                 <button type="submit" class="btn-primary" style="margin-top: 25px;">Entrar no Sistema</button>
             </form>
-            <p class="toggle-text">Não possui conta? <button type="button" onclick="switchForm('reg')">Cadastrar-se</button></p>
+            <p class="toggle-text">Não possui conta? <button type="button" class="toggle-btn" id="btnGoToReg">Cadastrar-se</button></p>
         </div>
 
         <div id="regSection" class="hidden">
             <p class="subtitle">Crie seu perfil no sistema</p>
-            <form onsubmit="executeRegister(event)">
+            <form id="regForm">
                 <div class="input-group">
                     <label>Nome de Usuário</label>
                     <input type="text" id="regName" required placeholder="Seu nome ou nick">
@@ -71,7 +71,7 @@
                 </div>
                 <button type="submit" class="btn-primary">Criar Minha Conta</button>
             </form>
-            <p class="toggle-text">Já tem uma conta? <button type="button" onclick="switchForm('login')">Fazer Login</button></p>
+            <p class="toggle-text">Já tem uma conta? <button type="button" class="toggle-btn" id="btnGoToLogin">Fazer Login</button></p>
         </div>
 
         <div id="dashSection" class="hidden">
@@ -86,7 +86,7 @@
                     <p id="userEmailDisplay" style="color: #00b4d8;">-</p>
                 </div>
             </div>
-            <button onclick="executeLogout()" class="btn-danger">Encerrar Sessão</button>
+            <button type="button" id="btnLogout" class="btn-danger">Encerrar Sessão</button>
         </div>
 
         <p id="msg"></p>
@@ -104,7 +104,6 @@
             updateProfile 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Configuração real do seu Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCGD9DZDFp0w9baW8jiqgGGfkasAvqreY0",
             authDomain: "site-ec6fd.firebaseapp.com",
@@ -112,28 +111,13 @@
             projectId: "site-ec6fd",
             storageBucket: "site-ec6fd.firebasestorage.app",
             messagingSenderId: "338689686380",
-            appId: "1:338689686380:web:509aebb8d64694a0e1d149",
-            measurementId: "G-17MWLV6N26"
+            appId: "1:338689686380:web:509aebb8d64694a0e1d149"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Alterna entre formulários de login e cadastro
-        window.switchForm = function(type) {
-            clearMsg();
-            const loginSection = document.getElementById('loginSection');
-            const regSection = document.getElementById('regSection');
-
-            if (type === 'reg') {
-                loginSection.classList.add('hidden');
-                regSection.classList.remove('hidden');
-            } else {
-                regSection.classList.add('hidden');
-                loginSection.classList.remove('hidden');
-            }
-        };
-
+        // Funções de UI
         function showMsg(text, type) {
             const msg = document.getElementById('msg');
             msg.innerText = text;
@@ -146,9 +130,24 @@
             msg.className = '';
         }
 
-        // Cadastro de Usuário (Limite automático de 1 conta por e-mail)
-        window.executeRegister = async function(event) {
-            event.preventDefault();
+        function switchForm(type) {
+            clearMsg();
+            if (type === 'reg') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('regSection').classList.remove('hidden');
+            } else {
+                document.getElementById('regSection').classList.add('hidden');
+                document.getElementById('loginSection').classList.remove('hidden');
+            }
+        }
+
+        // Event Listeners para garantir funcionamento nos cliques
+        document.getElementById('btnGoToReg').addEventListener('click', () => switchForm('reg'));
+        document.getElementById('btnGoToLogin').addEventListener('click', () => switchForm('login'));
+
+        // CADASTRO
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
@@ -166,18 +165,18 @@
                 showMsg('Conta criada com sucesso!', 'success');
             } catch (err) {
                 if (err.code === 'auth/email-already-in-use') {
-                    showMsg('Este e-mail já possui uma conta cadastrada.', 'error');
+                    showMsg('Este e-mail já está em uso (máximo 1 conta).', 'error');
                 } else if (err.code === 'auth/weak-password') {
-                    showMsg('A senha precisa ter pelo menos 6 caracteres.', 'error');
+                    showMsg('A senha deve ter pelo menos 6 caracteres.', 'error');
                 } else {
                     showMsg('Erro ao cadastrar: ' + err.message, 'error');
                 }
             }
-        };
+        });
 
-        // Login de Usuário
-        window.executeLogin = async function(event) {
-            event.preventDefault();
+        // LOGIN
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
@@ -189,20 +188,22 @@
             } catch (err) {
                 showMsg('E-mail ou senha incorretos.', 'error');
             }
-        };
+        });
 
-        // Redefinição de Senha por E-mail (Gmail)
-        window.executeResetPassword = async function() {
+        // REDEFINIR SENHA (ESQUECI A SENHA)
+        document.getElementById('btnForgot').addEventListener('click', async () => {
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
 
             if (!email) {
-                showMsg('Digite seu e-mail no campo acima antes de clicar em "Esqueci a senha".', 'error');
+                showMsg('Preencha seu e-mail no campo acima antes de clicar.', 'error');
                 return;
             }
 
+            showMsg('Enviando e-mail de recuperação...', 'success');
+
             try {
                 await sendPasswordResetEmail(auth, email);
-                showMsg('E-mail de redefinição enviado! Verifique sua caixa de entrada/spam no Gmail.', 'success');
+                showMsg('E-mail enviado! Verifique sua caixa de entrada/spam no Gmail.', 'success');
             } catch (err) {
                 if (err.code === 'auth/user-not-found') {
                     showMsg('Nenhuma conta cadastrada com este e-mail.', 'error');
@@ -210,15 +211,15 @@
                     showMsg('Erro ao enviar e-mail: ' + err.message, 'error');
                 }
             }
-        };
+        });
 
-        // Encerrar sessão
-        window.executeLogout = async function() {
+        // LOGOUT
+        document.getElementById('btnLogout').addEventListener('click', async () => {
             await signOut(auth);
             clearMsg();
-        };
+        });
 
-        // Monitor do estado da sessão
+        // MONITOR DE SESSÃO
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('loginSection').classList.add('hidden');

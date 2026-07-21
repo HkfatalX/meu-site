@@ -1,0 +1,186 @@
+cat << 'EOF' > login.html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterSite - Login & Cadastro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: radial-gradient(circle at top right, #1a153a 0%, #0a0813 100%); color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: rgba(13, 11, 26, 0.85); padding: 35px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); width: 100%; max-width: 400px; text-align: center; border: 1px solid #3c357a; backdrop-filter: blur(12px); }
+        h1 { color: #00ff88; font-size: 32px; margin-bottom: 5px; font-weight: 700; }
+        p.sub { color: #8a88a5; font-size: 14px; margin-bottom: 25px; }
+        .input-group { margin-bottom: 18px; text-align: left; }
+        label { display: block; margin-bottom: 6px; color: #b1aebd; font-size: 13px; }
+        input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #3c357a; background: #07050f; color: #fff; font-size: 14px; outline: none; }
+        input:focus { border-color: #00ff88; box-shadow: 0 0 10px rgba(0,255,136,0.2); }
+        button { width: 100%; padding: 14px; background: linear-gradient(90deg, #00ff88 0%, #00e1ff 100%); color: #07050f; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .toggle { margin-top: 20px; font-size: 13px; color: #a5a2b8; }
+        .toggle a { color: #00e1ff; text-decoration: none; font-weight: 600; cursor: pointer; }
+        #msg { margin-top: 18px; font-size: 13px; font-weight: 600; padding: 8px; border-radius: 6px; }
+        .success { color: #00ff88; background: rgba(0, 255, 136, 0.1); }
+        .error { color: #ff4444; background: rgba(255, 68, 68, 0.1); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>MasterSite</h1>
+
+        <div id="loginSection">
+            <p class="sub">Acesse sua conta</p>
+            <form onsubmit="executeLogin(event)">
+                <div class="input-group">
+                    <label>E-mail (Gmail)</label>
+                    <input type="email" id="loginEmail" required placeholder="seu-email@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" id="loginPassword" required placeholder="Digite sua senha">
+                </div>
+                <button type="submit">Entrar</button>
+            </form>
+            <p class="toggle">Não tem conta? <a onclick="switchForm('reg')">Criar Conta</a></p>
+        </div>
+
+        <div id="regSection" class="hidden">
+            <p class="sub">Criar nova conta</p>
+            <form onsubmit="executeRegister(event)">
+                <div class="input-group">
+                    <label>Nome de Usuário</label>
+                    <input type="text" id="regName" required placeholder="Ex: Rai">
+                </div>
+                <div class="input-group">
+                    <label>Gmail Real</label>
+                    <input type="email" id="regEmail" required placeholder="seu-email@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" id="regPassword" required placeholder="Mínimo 6 caracteres">
+                </div>
+                <button type="submit" style="background: linear-gradient(90deg, #00e1ff 0%, #0088ff 100%); color: #fff;">Cadastrar</button>
+            </form>
+            <p class="toggle">Já tem conta? <a onclick="switchForm('login')">Fazer Login</a></p>
+        </div>
+
+        <div id="dashSection" class="hidden">
+            <h2 id="welcomeUser" style="color: #00ff88;">Bem-vindo!</h2>
+            <p id="userEmailDisplay" style="color: #00e1ff; font-size: 13px; margin: 10px 0 20px 0;"></p>
+            <button onclick="executeLogout()" style="background: #ff4444; color: #fff;">Encerrar Sessão</button>
+        </div>
+
+        <p id="msg"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // SEU LINK DO FIREBASE
+        const firebaseConfig = {
+            databaseURL: "https://site-ec6fd-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.switchForm = function(type) {
+            document.getElementById('msg').innerText = "";
+            document.getElementById('msg').className = "";
+            if (type === 'reg') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('regSection').classList.remove('hidden');
+            } else {
+                document.getElementById('regSection').classList.add('hidden');
+                document.getElementById('loginSection').classList.remove('hidden');
+            }
+        };
+
+        window.executeRegister = async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const msg = document.getElementById('msg');
+
+            if (!email.endsWith('@gmail.com')) {
+                msg.className = "error"; msg.innerText = "Utilize um e-mail @gmail.com válido."; return;
+            }
+            if (password.length < 6) {
+                msg.className = "error"; msg.innerText = "Senha deve ter no mínimo 6 caracteres."; return;
+            }
+
+            msg.className = "success"; msg.innerText = "Conectando ao Firebase...";
+            const key = btoa(email).replace(/[^a-zA-Z0-9]/g, "");
+
+            try {
+                const snap = await get(ref(db, 'users/' + key));
+                if (snap.exists()) {
+                    msg.className = "error"; msg.innerText = "Este e-mail já está registrado.";
+                    return;
+                }
+
+                await set(ref(db, 'users/' + key), { name, email, passHash: btoa(password) });
+                msg.className = "success"; msg.innerText = "Conta criada! Indo para o login...";
+                setTimeout(() => { switchForm('login'); }, 1500);
+            } catch (err) {
+                msg.className = "error"; msg.innerText = "Erro no servidor. Verifique as Regras do Firebase.";
+            }
+        };
+
+        window.executeLogin = async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            const msg = document.getElementById('msg');
+
+            msg.className = "success"; msg.innerText = "Autenticando...";
+            const key = btoa(email).replace(/[^a-zA-Z0-9]/g, "");
+
+            try {
+                const snap = await get(ref(db, 'users/' + key));
+                if (!snap.exists()) {
+                    msg.className = "error"; msg.innerText = "E-mail ou senha incorretos.";
+                    return;
+                }
+
+                const user = snap.val();
+                if (user.passHash === btoa(password)) {
+                    localStorage.setItem('_mastersite_session', JSON.stringify(user));
+                    showDash(user);
+                } else {
+                    msg.className = "error"; msg.innerText = "E-mail ou senha incorretos.";
+                }
+            } catch (err) {
+                msg.className = "error"; msg.innerText = "Erro ao conectar com o banco.";
+            }
+        };
+
+        window.executeLogout = function() {
+            localStorage.removeItem('_mastersite_session');
+            document.getElementById('dashSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('msg').innerText = "";
+        };
+
+        function showDash(user) {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('regSection').classList.add('hidden');
+            document.getElementById('dashSection').classList.remove('hidden');
+            document.getElementById('welcomeUser').innerText = "Bem-vindo, " + user.name + "!";
+            document.getElementById('userEmailDisplay').innerText = user.email;
+            document.getElementById('msg').innerText = "";
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const sess = localStorage.getItem('_mastersite_session');
+            if (sess) showDash(JSON.parse(sess));
+        });
+    </script>
+</body>
+</html>
+EOF
+

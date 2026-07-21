@@ -1,4 +1,3 @@
-cat << 'EOF' > index.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,205 +7,27 @@ cat << 'EOF' > index.html
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background: #090a10;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(0, 255, 136, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(0, 180, 216, 0.12) 0px, transparent 50%);
-            color: #f1f5f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .card {
-            background: rgba(18, 20, 29, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px 32px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(16px);
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 30px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00ff88 0%, #00b4d8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            color: #94a3b8;
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-
-        .input-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(10, 11, 18, 0.8);
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.25s ease;
-        }
-
-        .input-group input:focus {
-            border-color: #00ff88;
-            box-shadow: 0 0 12px rgba(0, 255, 136, 0.2);
-            background: rgba(15, 17, 26, 0.95);
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #00ff88 0%, #00b4d8 100%);
-            color: #08090e;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 10px;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-danger {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            background: #ef4444;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.2s ease;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .toggle-text {
-            margin-top: 22px;
-            font-size: 13px;
-            color: #94a3b8;
-        }
-
-        .toggle-text a {
-            color: #00b4d8;
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .toggle-text a:hover {
-            text-decoration: underline;
-        }
-
-        #msg {
-            margin-top: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 10px 14px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .msg-success {
-            display: block !important;
-            color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-        }
-
-        .msg-error {
-            display: block !important;
-            color: #f87171;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .user-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0 10px 0;
-            text-align: left;
-        }
-
-        .user-info {
-            margin-bottom: 12px;
-        }
-
-        .user-info:last-child {
-            margin-bottom: 0;
-        }
-
-        .user-info span {
-            font-size: 11px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: block;
-        }
-
-        .user-info p {
-            font-size: 15px;
-            font-weight: 600;
-            color: #f1f5f9;
-        }
-
-        .badge-online {
-            display: inline-block;
-            padding: 4px 10px;
-            background: rgba(0, 255, 136, 0.15);
-            color: #00ff88;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #090a10; background-image: radial-gradient(at 0% 0%, rgba(0, 255, 136, 0.12) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(0, 180, 216, 0.12) 0px, transparent 50%); color: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: rgba(18, 20, 29, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px 32px; width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); backdrop-filter: blur(16px); text-align: center; }
+        .logo { font-size: 30px; font-weight: 800; background: linear-gradient(135deg, #00ff88 0%, #00b4d8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .subtitle { color: #94a3b8; font-size: 14px; margin-bottom: 28px; }
+        .input-group { margin-bottom: 18px; text-align: left; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(10, 11, 18, 0.8); color: #fff; font-size: 14px; outline: none; transition: all 0.25s ease; }
+        .input-group input:focus { border-color: #00ff88; box-shadow: 0 0 12px rgba(0, 255, 136, 0.2); background: rgba(15, 17, 26, 0.95); }
+        .btn-primary { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, #00ff88 0%, #00b4d8 100%); color: #08090e; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-danger { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #ef4444; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 20px; }
+        .toggle-text { margin-top: 22px; font-size: 13px; color: #94a3b8; }
+        .toggle-text a { color: #00b4d8; text-decoration: none; font-weight: 600; cursor: pointer; }
+        #msg { margin-top: 20px; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; display: none; }
+        .msg-success { display: block !important; color: #00ff88; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.2); }
+        .msg-error { display: block !important; color: #f87171; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .user-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 20px; margin: 20px 0 10px 0; text-align: left; }
+        .user-info { margin-bottom: 12px; }
+        .user-info span { font-size: 11px; color: #64748b; text-transform: uppercase; display: block; }
+        .user-info p { font-size: 15px; font-weight: 600; color: #f1f5f9; }
+        .badge-online { display: inline-block; padding: 4px 10px; background: rgba(0, 255, 136, 0.15); color: #00ff88; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -253,7 +74,6 @@ cat << 'EOF' > index.html
 
         <div id="dashSection" class="hidden">
             <span class="badge-online">● Conta Ativa</span>
-            
             <div class="user-box">
                 <div class="user-info">
                     <span>Usuário</span>
@@ -264,7 +84,6 @@ cat << 'EOF' > index.html
                     <p id="userEmailDisplay" style="color: #00b4d8;">-</p>
                 </div>
             </div>
-
             <button onclick="executeLogout()" class="btn-danger">Encerrar Sessão</button>
         </div>
 
@@ -275,10 +94,7 @@ cat << 'EOF' > index.html
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        const firebaseConfig = {
-            databaseURL: "https://site-ec6fd-default-rtdb.firebaseio.com/"
-        };
-
+        const firebaseConfig = { databaseURL: "https://site-ec6fd-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -311,31 +127,19 @@ cat << 'EOF' > index.html
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
 
-            if (!email.endsWith('@gmail.com')) {
-                showMsg('Por favor, utilize um e-mail @gmail.com válido.', 'error');
-                return;
-            }
-            if (password.length < 6) {
-                showMsg('A senha deve conter pelo menos 6 caracteres.', 'error');
-                return;
-            }
+            if (!email.endsWith('@gmail.com')) { showMsg('Utilize um e-mail @gmail.com válido.', 'error'); return; }
+            if (password.length < 6) { showMsg('Senha deve ter pelo menos 6 caracteres.', 'error'); return; }
 
-            showMsg('Registrando conta no servidor...', 'success');
+            showMsg('Registrando conta...', 'success');
             const key = btoa(email).replace(/[^a-zA-Z0-9]/g, "");
 
             try {
                 const snap = await get(ref(db, 'users/' + key));
-                if (snap.exists()) {
-                    showMsg('Este e-mail já está cadastrado.', 'error');
-                    return;
-                }
-
+                if (snap.exists()) { showMsg('Este e-mail já está cadastrado.', 'error'); return; }
                 await set(ref(db, 'users/' + key), { name, email, passHash: btoa(password) });
-                showMsg('Conta criada com sucesso! Redirecionando...', 'success');
+                showMsg('Conta criada! Redirecionando...', 'success');
                 setTimeout(() => { switchForm('login'); }, 1500);
-            } catch (err) {
-                showMsg('Erro de conexão com o banco de dados.', 'error');
-            }
+            } catch (err) { showMsg('Erro no banco de dados.', 'error'); }
         };
 
         window.executeLogin = async function(event) {
@@ -348,21 +152,13 @@ cat << 'EOF' > index.html
 
             try {
                 const snap = await get(ref(db, 'users/' + key));
-                if (!snap.exists()) {
-                    showMsg('E-mail ou senha incorretos.', 'error');
-                    return;
-                }
-
+                if (!snap.exists()) { showMsg('E-mail ou senha incorretos.', 'error'); return; }
                 const user = snap.val();
                 if (user.passHash === btoa(password)) {
                     localStorage.setItem('_mastersite_session', JSON.stringify(user));
                     showDash(user);
-                } else {
-                    showMsg('E-mail ou senha incorretos.', 'error');
-                }
-            } catch (err) {
-                showMsg('Erro ao autenticar com o banco.', 'error');
-            }
+                } else { showMsg('E-mail ou senha incorretos.', 'error'); }
+            } catch (err) { showMsg('Erro ao conectar com o banco.', 'error'); }
         };
 
         window.executeLogout = function() {
@@ -370,8 +166,6 @@ cat << 'EOF' > index.html
             document.getElementById('dashSection').classList.add('hidden');
             document.getElementById('loginSection').classList.remove('hidden');
             clearMsg();
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
         };
 
         function showDash(user) {
@@ -390,5 +184,3 @@ cat << 'EOF' > index.html
     </script>
 </body>
 </html>
-EOF
-

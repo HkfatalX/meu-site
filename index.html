@@ -148,7 +148,7 @@
         .msg-success { background: #2e7d32; color: #fff; }
         .msg-error { background: #c62828; color: #fff; }
 
-        /* PLAYER COM OCULTAMENTO AUTOMÁTICO SUAVE (AUTO-HIDE) */
+        /* PLAYER COM CONTROLES RESPONSIVOS E INTELIGENTES */
         .player-modal-box { 
             width: 100%; max-width: 1200px; height: 85vh; max-height: 700px; background: #000; 
             border-radius: 12px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); 
@@ -157,10 +157,10 @@
         .player-controls-top {
             position: absolute; top: 0; left: 0; width: 100%;
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(13, 13, 13, 0.9); backdrop-filter: blur(8px);
-            padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 20;
-            transition: opacity 0.35s ease, visibility 0.35s ease;
-            opacity: 1; visibility: visible;
+            background: rgba(13, 13, 13, 0.95); backdrop-filter: blur(8px);
+            padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 30;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 1; visibility: visible; pointer-events: auto;
         }
         .player-controls-top.is-hidden {
             opacity: 0;
@@ -180,7 +180,7 @@
         .episode-thumb img { width: 100%; height: 100%; object-fit: contain; background: #000; }
         .admin-item { display: flex; align-items: center; justify-content: space-between; background: #1f1f1f; border: 1px solid #333; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px; }
 
-        /* PERFIL CORRIGIDO SEM DISTORÇÕES */
+        /* PERFIL CORRIGIDO */
         .profile-card-header { position: relative; border-radius: 12px; overflow: hidden; background: #222; height: 140px; margin-bottom: 50px; border: 1px solid rgba(255,255,255,0.1); }
         .profile-banner-bg { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
         .profile-avatar-overlay { 
@@ -549,7 +549,6 @@
         let selectedCategory = "Todos";
         let isSignUpMode = false;
 
-        /* REDIMENSIONAMENTO INTELIGENTE: IMAGENS PEQUENAS CARREGAM DIRETO */
         let cropperInstance = null;
         let currentTargetInput = null;
         let currentTargetPreview = null;
@@ -568,7 +567,6 @@
                 reader.onload = (event) => {
                     const tempImg = new Image();
                     tempImg.onload = () => {
-                        // Se a imagem tiver dimensões pequenas (<= 800px), carrega direto sem abrir o Cropper
                         if (tempImg.naturalWidth <= 800 && tempImg.naturalHeight <= 800) {
                             if (currentTargetPreview) {
                                 currentTargetPreview.src = event.target.result;
@@ -578,7 +576,6 @@
                             return;
                         }
 
-                        // Se for maior, abre o modal para redimensionar
                         const cropperImg = document.getElementById('cropperImage');
                         cropperImg.src = event.target.result;
                         
@@ -693,7 +690,6 @@
         }
         window.addEventListener('hashchange', handleHashRouting);
 
-        /* ADAPTAÇÃO DINÂMICA FILMES X SÉRIES */
         document.getElementById('mediaType').onchange = (e) => {
             const type = e.target.value;
             const durationLabel = document.getElementById('mediaDurationLabel');
@@ -722,7 +718,7 @@
                 sDiv.style.cssText = "background:#181818; border:1px solid #333; border-radius:8px; padding:12px; margin-top:12px;";
 
                 sDiv.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; align-align:center; margin-bottom:8px;">
                         <strong style="color:var(--primary-color); font-size:13px;">Temporada ${sIdx + 1}</strong>
                         <button type="button" class="btn-secondary" style="font-size:10px; padding:4px 8px;" onclick="addEpisode(${sIdx})">+ Episódio</button>
                     </div>
@@ -1008,25 +1004,69 @@
             return formatted;
         }
 
-        /* AUTO-HIDE SUAVE DOS CONTROLES DO PLAYER */
+        /* OCULTAMENTO E EXIBIÇÃO INTELIGENTE DA BARRA (CELULAR, PC E TV) */
         let playerTimer = null;
 
         function showPlayerControls() {
             const controls = document.getElementById('playerControlsTop');
             if (!controls) return;
+            
             controls.classList.remove('is-hidden');
             clearTimeout(playerTimer);
+            
             playerTimer = setTimeout(() => {
                 controls.classList.add('is-hidden');
-            }, 3000);
+            }, 4000);
         }
 
-        const playerBox = document.getElementById('playerModalBox');
-        if (playerBox) {
-            ['mousemove', 'click', 'touchstart', 'touchmove'].forEach(evt => {
-                playerBox.addEventListener(evt, showPlayerControls);
-            });
+        // Detecta interações no PC, Celular e Smart TV
+        ['mousemove', 'mousedown', 'touchstart', 'pointerdown', 'keydown'].forEach(evtType => {
+            window.addEventListener(evtType, (e) => {
+                const playerModal = document.getElementById('playerModal');
+                if (playerModal && !playerModal.classList.contains('hidden')) {
+                    showPlayerControls();
+                }
+            }, { passive: true });
+        });
+
+        /* SUPORTE DINÂMICO A TELA CHEIA (TEXTO MUTA AUTOMATICAMENTE) */
+        function updateFullscreenButtonText() {
+            const btn = document.getElementById('btnToggleFullscreen');
+            if (!btn) return;
+
+            const isFS = !!(
+                document.fullscreenElement || 
+                document.webkitFullscreenElement || 
+                document.mozFullScreenElement || 
+                document.msFullscreenElement
+            );
+
+            btn.innerText = isFS ? "🗗 Sair da Tela Cheia" : "⛶ Tela Cheia";
         }
+
+        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+            document.addEventListener(evt, updateFullscreenButtonText);
+        });
+
+        document.getElementById('btnToggleFullscreen').onclick = () => {
+            const playerBoxElem = document.getElementById('playerModalBox');
+            const isFS = !!(
+                document.fullscreenElement || 
+                document.webkitFullscreenElement || 
+                document.mozFullScreenElement || 
+                document.msFullscreenElement
+            );
+
+            if (!isFS) {
+                if (playerBoxElem.requestFullscreen) playerBoxElem.requestFullscreen();
+                else if (playerBoxElem.webkitRequestFullscreen) playerBoxElem.webkitRequestFullscreen();
+                else if (playerBoxElem.msRequestFullscreen) playerBoxElem.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        };
 
         function playVideo(rawUrl, title) {
             if (!rawUrl) { showMsg('Nenhum link de vídeo fornecido!', 'error'); return; }
@@ -1050,20 +1090,9 @@
             container.appendChild(iframe);
             document.getElementById('playerModal').classList.remove('hidden');
 
+            updateFullscreenButtonText();
             showPlayerControls();
         }
-
-        document.getElementById('btnToggleFullscreen').onclick = () => {
-            const playerBoxElem = document.getElementById('playerModalBox');
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (playerBoxElem.requestFullscreen) playerBoxElem.requestFullscreen();
-                else if (playerBoxElem.webkitRequestFullscreen) playerBoxElem.webkitRequestFullscreen();
-                else if (playerBoxElem.msRequestFullscreen) playerBoxElem.msRequestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            }
-        };
 
         document.getElementById('mediaForm').onsubmit = async (e) => {
             e.preventDefault();
@@ -1143,7 +1172,6 @@
             }
         };
 
-        /* BLOQUEIO DE ALTERAÇÃO DE TIPO NO MODO EDITAR */
         window.editMedia = (id) => {
             const item = mediaCatalog.find(m => m.id === id);
             if (!item) return;
@@ -1152,7 +1180,7 @@
             
             const typeSelect = document.getElementById('mediaType');
             typeSelect.value = item.type;
-            typeSelect.disabled = true; // Impedir troca de Filme <-> Série ao editar
+            typeSelect.disabled = true;
             typeSelect.style.cursor = 'not-allowed';
             typeSelect.style.opacity = '0.6';
 
@@ -1213,7 +1241,6 @@
         document.getElementById('btnCloseAdmin').onclick = () => document.getElementById('adminModal').classList.add('hidden');
         document.getElementById('btnAddNewFromAdmin').onclick = () => { document.getElementById('adminModal').classList.add('hidden'); document.getElementById('btnOpenCreator').click(); };
 
-        /* PERSISTÊNCIA CORRETA DO PERFIL */
         document.getElementById('btnSaveProfile').onclick = async () => {
             const user = auth.currentUser;
             if (!user) return;
@@ -1348,7 +1375,7 @@
             document.getElementById('mediaForm').reset(); 
             
             const typeSelect = document.getElementById('mediaType');
-            typeSelect.disabled = false; // Habilitado para novas publicações
+            typeSelect.disabled = false;
             typeSelect.style.cursor = 'pointer';
             typeSelect.style.opacity = '1';
             typeSelect.dispatchEvent(new Event('change'));

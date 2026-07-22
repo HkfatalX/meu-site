@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MasterFlix - Assistir Filmes e Séries Online</title>
+    <title>MasterFlix - Filmes e Séries</title>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
@@ -21,12 +21,13 @@
         header { position: fixed; top: 0; left: 0; width: 100%; height: 65px; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: space-between; padding: 0 4%; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .brand { font-size: 22px; font-weight: 900; color: var(--primary-color); letter-spacing: -1px; cursor: pointer; }
         
-        .nav-actions { display: flex; align-items: center; gap: 8px; }
+        .nav-actions { display: flex; align-items: center; gap: 10px; }
+        
         .user-avatar-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer; border: 2px solid #fff; overflow: hidden; font-size: 14px; }
         .user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 
         button, input, select, textarea { outline: none; }
-        button:focus-visible, input:focus-visible { outline: 2px solid var(--primary-color); }
+        button:focus-visible, input:focus-visible, .media-card:focus-visible { outline: 3px solid var(--primary-color) !important; outline-offset: 2px; }
 
         .app-container { padding-top: 80px; padding-bottom: 60px; width: 100%; max-width: 100vw; }
 
@@ -48,7 +49,7 @@
         .carousel-container::-webkit-scrollbar { display: none; }
 
         .media-card { flex: 0 0 clamp(130px, 22vw, 180px); height: clamp(195px, 33vw, 270px); border-radius: 10px; position: relative; overflow: hidden; background: var(--card-bg); cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.2s; }
-        .media-card:hover { transform: scale(1.03); border-color: var(--primary-color); }
+        .media-card:hover, .media-card:focus { transform: scale(1.04); border-color: var(--primary-color); }
         .media-card img { width: 100%; height: 100%; object-fit: cover; }
         .media-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.9) 100%); padding: 10px; display: flex; flex-direction: column; justify-content: flex-end; }
         .media-card-title { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -68,12 +69,12 @@
         .custom-file-btn { background: var(--primary-color); color: #fff; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 6px; pointer-events: none; }
         .custom-file-name { font-size: 12px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
 
-        .preview-box { width: 100%; height: 140px; border-radius: 8px; background: #111; border: 1px solid #333; margin-top: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .preview-box { width: 100%; height: 120px; border-radius: 8px; background: #111; border: 1px solid #333; margin-top: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
         .preview-placeholder { font-size: 11px; color: #666; font-weight: 600; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-        .modal-body { background: #181818; border: 1px solid #2a2a2a; border-radius: 14px; width: 100%; max-width: 600px; max-height: 88vh; overflow-y: auto; padding: 20px; position: relative; }
+        .modal-body { background: #181818; border: 1px solid #2a2a2a; border-radius: 14px; width: 100%; max-width: 620px; max-height: 88vh; overflow-y: auto; padding: 20px; position: relative; }
         .modal-close { position: absolute; top: 12px; right: 12px; background: #2a2a2a; color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
         .hidden { display: none !important; }
@@ -85,11 +86,20 @@
         .season-tab { padding: 6px 14px; border-radius: 20px; background: #222; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; border: 1px solid #333; }
         .season-tab.active { background: var(--primary-color); border-color: var(--primary-color); }
 
-        .episode-card { display: flex; align-items: center; justify-content: space-between; background: #222; padding: 10px 14px; border-radius: 8px; cursor: pointer; margin-bottom: 8px; }
+        .episode-card { display: flex; align-items: center; gap: 12px; background: #222; padding: 8px; border-radius: 8px; cursor: pointer; margin-bottom: 8px; border: 1px solid #2a2a2a; }
+        .episode-card:hover, .episode-card:focus { border-color: var(--primary-color); background: #282828; }
+        .episode-thumb { width: 85px; height: 50px; border-radius: 6px; overflow: hidden; background: #000; flex-shrink: 0; }
+        .episode-thumb img { width: 100%; height: 100%; object-fit: cover; }
         
         .player-wrapper { width: 100%; max-width: 950px; background: #000; border-radius: 12px; overflow: hidden; position: relative; }
         video { width: 100%; max-height: 70vh; background: #000; display: block; }
         .admin-item { display: flex; align-items: center; justify-content: space-between; background: #222; border: 1px solid #333; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+
+        /* MODO SMART TV */
+        body.is-smart-tv header { padding: 0 6%; height: 75px; }
+        body.is-smart-tv .brand { font-size: 26px; }
+        body.is-smart-tv .btn-primary, body.is-smart-tv .btn-secondary { font-size: 14px; padding: 12px 20px; }
+        body.is-smart-tv .user-avatar-btn { display: none !important; }
     </style>
 </head>
 <body>
@@ -102,7 +112,9 @@
             <button class="btn-primary hidden" id="btnAdminManager" style="padding: 6px 10px; font-size: 11px;">⚙️ Gerenciar</button>
             <button class="btn-primary hidden" id="btnOpenCreator" style="padding: 6px 10px; font-size: 11px;">➕ Publicar/Criar</button>
             
-            <div class="user-avatar-btn" id="btnOpenProfile" title="Meu Perfil">
+            <button class="btn-secondary hidden" id="btnTvLogout" style="font-size: 11px; padding: 6px 10px; border-color: #c62828; color: #ff5252;">🚪 Sair</button>
+
+            <div class="user-avatar-btn" id="btnOpenProfile" title="Meu Perfil" tabindex="0">
                 <span id="avatarText">U</span>
                 <img id="avatarImg" class="hidden" src="" alt="Avatar">
             </div>
@@ -192,20 +204,15 @@
         </div>
 
         <div class="categories-bar" id="categoriesBar">
-            <div class="category-chip active" data-cat="Todos">Todos</div>
-            <div class="category-chip" data-cat="Filmes">🎬 Filmes</div>
-            <div class="category-chip" data-cat="Séries">📺 Séries</div>
-            <div class="category-chip" data-cat="Ação">Ação</div>
-            <div class="category-chip" data-cat="Comédia">Comédia</div>
-            <div class="category-chip" data-cat="Drama">Drama</div>
-            <div class="category-chip" data-cat="Terror">Terror</div>
-            <div class="category-chip" data-cat="Animação">Animação</div>
-            <div class="category-chip" data-cat="Sci-Fi">Sci-Fi</div>
-        </div>
-
-        <div class="section-row hidden" id="continueSection">
-            <div class="section-title"><span>⏳ Continuar Assistindo</span></div>
-            <div class="carousel-container" id="continueCarousel"></div>
+            <div class="category-chip active" data-cat="Todos" tabindex="0">Todos</div>
+            <div class="category-chip" data-cat="Filmes" tabindex="0">🎬 Filmes</div>
+            <div class="category-chip" data-cat="Séries" tabindex="0">📺 Séries</div>
+            <div class="category-chip" data-cat="Ação" tabindex="0">Ação</div>
+            <div class="category-chip" data-cat="Comédia" tabindex="0">Comédia</div>
+            <div class="category-chip" data-cat="Drama" tabindex="0">Drama</div>
+            <div class="category-chip" data-cat="Terror" tabindex="0">Terror</div>
+            <div class="category-chip" data-cat="Animação" tabindex="0">Animação</div>
+            <div class="category-chip" data-cat="Sci-Fi" tabindex="0">Sci-Fi</div>
         </div>
 
         <div class="section-row" id="moviesRow">
@@ -259,7 +266,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Capa Principal</label>
+                    <label>Capa Principal da Série/Filme</label>
                     <label class="custom-file-upload">
                         <span class="custom-file-name" id="coverFileNameDisplay">Escolher Capa Local...</span>
                         <span class="custom-file-btn">Upload Capa</span>
@@ -268,7 +275,7 @@
                     <input type="url" id="mediaCoverUrl" placeholder="Ou cole a URL da imagem da capa" style="margin-top: 6px;">
                     
                     <div class="preview-box" id="coverPreviewBox">
-                        <span class="preview-placeholder" id="coverPreviewText">Pré-visualização da Capa</span>
+                        <span class="preview-placeholder" id="coverPreviewText">Pré-visualização da Capa Principal</span>
                         <img id="coverPreviewImg" class="hidden" src="">
                     </div>
                 </div>
@@ -296,7 +303,7 @@
                     <div id="seasonsList"></div>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;">Publicar para Todo Mundo</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;">Publicar Conteúdo</button>
             </form>
         </div>
     </div>
@@ -338,7 +345,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // GMAIL DE ADMINISTRADOR ÚNICO COM PERMISSÃO EXCLUSIVA
         const EXCLUSIVE_ADMIN_EMAIL = "raiyuri.freefire@gmail.com";
 
         const firebaseConfig = {
@@ -361,6 +367,13 @@
         let selectedCategory = "Todos";
         let isSignUpMode = false;
         let tempCoverBase64 = "";
+
+        // DETECÇÃO DE SMART TV
+        const isSmartTV = /SmartTV|Tizen|WebOS|NetCast|Opera TV|Android TV|AppleTV|HbbTV|LG NetCast/i.test(navigator.userAgent);
+        if (isSmartTV) {
+            document.body.classList.add('is-smart-tv');
+            document.getElementById('btnTvLogout').classList.remove('hidden');
+        }
 
         function showMsg(text, type) {
             const msg = document.getElementById('msg');
@@ -387,7 +400,7 @@
         const savedColor = localStorage.getItem('masterflix_theme_color');
         if (savedColor) applyUserTheme(savedColor);
 
-        // PREVIEW DE FOTO DE PERFIL INSTANTÂNEA
+        // PREVIEW DE FOTO DE PERFIL
         function updateProfilePreview(src) {
             if (src) {
                 document.getElementById('profileAvatarBigImg').src = src;
@@ -406,12 +419,10 @@
         };
 
         document.getElementById('profilePhotoUrl').oninput = (e) => {
-            if (e.target.value.trim()) {
-                updateProfilePreview(e.target.value.trim());
-            }
+            if (e.target.value.trim()) updateProfilePreview(e.target.value.trim());
         };
 
-        // PREVIEW DE CAPA PRINCIPAL (CRIAR/EDITAR)
+        // PREVIEW DE CAPA PRINCIPAL
         function updateCoverPreview(src) {
             if (src) {
                 document.getElementById('coverPreviewImg').src = src;
@@ -433,18 +444,13 @@
         };
 
         document.getElementById('mediaCoverUrl').oninput = (e) => {
-            if (e.target.value.trim()) {
-                updateCoverPreview(e.target.value.trim());
-            } else if (!tempCoverBase64) {
-                updateCoverPreview("");
-            }
+            if (e.target.value.trim()) updateCoverPreview(e.target.value.trim());
+            else if (!tempCoverBase64) updateCoverPreview("");
         };
 
         document.getElementById('movieVideoFile').onchange = (e) => {
             const file = e.target.files[0];
-            if (file) {
-                document.getElementById('movieFileNameDisplay').innerText = file.name;
-            }
+            if (file) document.getElementById('movieFileNameDisplay').innerText = file.name;
         };
 
         // CATEGORIAS
@@ -457,7 +463,7 @@
             };
         });
 
-        // ROTAS DE NAVEGAÇÃO HASH
+        // ROTAS HASH
         function handleHashRouting() {
             const hash = window.location.hash;
             if (hash.startsWith('#/midia/')) {
@@ -485,53 +491,76 @@
 
             seasonsBuilder.forEach((season, sIdx) => {
                 const sDiv = document.createElement('div');
-                sDiv.style.cssText = "background:#222; border:1px solid #333; border-radius:8px; padding:10px; margin-top:8px;";
+                sDiv.style.cssText = "background:#222; border:1px solid #333; border-radius:8px; padding:10px; margin-top:10px;";
                 
                 const sCover = season.seasonCoverBase64 || season.seasonCoverUrl || '';
 
                 sDiv.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <strong style="color:var(--primary-color); font-size:12px;">Temporada ${sIdx + 1}</strong>
-                        <button type="button" class="btn-secondary" style="font-size:10px; padding:2px 6px;" onclick="addEpisode(${sIdx})">+ Add Episódio</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <strong style="color:var(--primary-color); font-size:13px;">Temporada ${sIdx + 1}</strong>
+                        <button type="button" class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="addEpisode(${sIdx})">+ Add Episódio</button>
                     </div>
                     <div class="input-group">
                         <label>Capa da Temporada (Opcional)</label>
                         <label class="custom-file-upload">
-                            <span class="custom-file-name" id="sCoverName_${sIdx}">Escolher Capa da Temp...</span>
-                            <span class="custom-file-btn">Upload</span>
+                            <span class="custom-file-name" id="sCoverName_${sIdx}">Escolher Capa...</span>
+                            <span class="custom-file-btn">Upload Capa</span>
                             <input type="file" accept="image/*" onchange="storeSeasonCoverFile(event, ${sIdx})">
                         </label>
-                        <input type="url" value="${season.seasonCoverUrl || ''}" placeholder="Ou cole a URL da capa" onchange="seasonsBuilder[${sIdx}].seasonCoverUrl = this.value" style="margin-top:4px;">
+                        <input type="url" value="${season.seasonCoverUrl || ''}" placeholder="Ou cole URL da capa" onchange="seasonsBuilder[${sIdx}].seasonCoverUrl = this.value" style="margin-top:4px;">
                         
-                        <div class="preview-box" style="height:90px;" id="sPreviewBox_${sIdx}">
+                        <div class="preview-box" style="height:80px;" id="sPreviewBox_${sIdx}">
                             <img src="${sCover}" class="${sCover ? '' : 'hidden'}" id="sPreviewImg_${sIdx}">
-                            <span class="preview-placeholder ${sCover ? 'hidden' : ''}" id="sPreviewTxt_${sIdx}">Pré-visualização da Capa da Temp</span>
+                            <span class="preview-placeholder ${sCover ? 'hidden' : ''}" id="sPreviewTxt_${sIdx}">Preview Capa Temporada</span>
                         </div>
                     </div>
+                    <div id="episodesListBuilder_${sIdx}"></div>
                 `;
+
+                container.appendChild(sDiv);
+
+                const epListDiv = sDiv.querySelector(`#episodesListBuilder_${sIdx}`);
 
                 (season.episodes || []).forEach((ep, eIdx) => {
                     const epDiv = document.createElement('div');
-                    epDiv.style.cssText = "background:#181818; border:1px solid #2a2a2a; border-radius:6px; padding:8px; margin-top:6px;";
+                    epDiv.style.cssText = "background:#181818; border:1px solid #2a2a2a; border-radius:6px; padding:10px; margin-top:8px;";
+                    
+                    const epCover = ep.coverBase64 || ep.coverUrl || '';
+
                     epDiv.innerHTML = `
-                        <div class="input-group">
-                            <label>Episódio ${eIdx + 1} - Título</label>
-                            <input type="text" value="${ep.title || ''}" onchange="seasonsBuilder[${sIdx}].episodes[${eIdx}].title = this.value" placeholder="Título do Episódio" required>
+                        <strong style="font-size:11px; color:#aaa;">EPISÓDIO ${eIdx + 1}</strong>
+                        <div class="input-group" style="margin-top:4px;">
+                            <label>Título do Episódio</label>
+                            <input type="text" value="${ep.title || ''}" onchange="seasonsBuilder[${sIdx}].episodes[${eIdx}].title = this.value" placeholder="Ex: Episódio ${eIdx + 1}" required>
                         </div>
+
+                        <div class="input-group">
+                            <label>Foto do Episódio (Se vazio, usará a da série/temporada)</label>
+                            <label class="custom-file-upload">
+                                <span class="custom-file-name" id="epCoverName_${sIdx}_${eIdx}">Escolher Foto do Ep...</span>
+                                <span class="custom-file-btn">Upload Foto</span>
+                                <input type="file" accept="image/*" onchange="storeEpCoverFile(event, ${sIdx}, ${eIdx})">
+                            </label>
+                            <input type="url" value="${ep.coverUrl || ''}" placeholder="Ou cole URL da foto do episódio" onchange="seasonsBuilder[${sIdx}].episodes[${eIdx}].coverUrl = this.value" style="margin-top:4px;">
+                            
+                            <div class="preview-box" style="height:70px;" id="epPreviewBox_${sIdx}_${eIdx}">
+                                <img src="${epCover}" class="${epCover ? '' : 'hidden'}" id="epPreviewImg_${sIdx}_${eIdx}">
+                                <span class="preview-placeholder ${epCover ? 'hidden' : ''}" id="epPreviewTxt_${sIdx}_${eIdx}">Preview Foto Episódio</span>
+                            </div>
+                        </div>
+
                         <div class="input-group">
                             <label>Vídeo do Episódio</label>
                             <label class="custom-file-upload">
-                                <span class="custom-file-name" id="epFileName_${sIdx}_${eIdx}">Escolher Arquivo Vídeo...</span>
-                                <span class="custom-file-btn">Upload</span>
+                                <span class="custom-file-name" id="epFileName_${sIdx}_${eIdx}">Escolher Vídeo do Ep...</span>
+                                <span class="custom-file-btn">Upload Vídeo</span>
                                 <input type="file" accept="video/*" onchange="storeEpVideoFile(event, ${sIdx}, ${eIdx})">
                             </label>
                             <input type="url" value="${ep.videoUrl || ''}" placeholder="Ou cole a URL do vídeo (.mp4)" onchange="seasonsBuilder[${sIdx}].episodes[${eIdx}].videoUrl = this.value" style="margin-top:4px;">
                         </div>
                     `;
-                    sDiv.appendChild(epDiv);
+                    epListDiv.appendChild(epDiv);
                 });
-
-                container.appendChild(sDiv);
             });
         }
 
@@ -549,6 +578,20 @@
             }
         };
 
+        window.storeEpCoverFile = async (e, sIdx, eIdx) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById(`epCoverName_${sIdx}_${eIdx}`).innerText = file.name;
+                const b64 = await fileToBase64(file);
+                seasonsBuilder[sIdx].episodes[eIdx].coverBase64 = b64;
+                const img = document.getElementById(`epPreviewImg_${sIdx}_${eIdx}`);
+                const txt = document.getElementById(`epPreviewTxt_${sIdx}_${eIdx}`);
+                img.src = b64;
+                img.classList.remove('hidden');
+                txt.classList.add('hidden');
+            }
+        };
+
         window.storeEpVideoFile = async (e, sIdx, eIdx) => {
             const file = e.target.files[0];
             if (file) {
@@ -558,12 +601,12 @@
         };
 
         function addSeason() {
-            seasonsBuilder.push({ seasonNumber: seasonsBuilder.length + 1, episodes: [{ title: '', videoUrl: '' }] });
+            seasonsBuilder.push({ seasonNumber: seasonsBuilder.length + 1, episodes: [{ title: 'Episódio 1', videoUrl: '' }] });
             renderSeasonsBuilder();
         }
 
         window.addEpisode = (sIdx) => {
-            seasonsBuilder[sIdx].episodes.push({ title: '', videoUrl: '' });
+            seasonsBuilder[sIdx].episodes.push({ title: `Episódio ${seasonsBuilder[sIdx].episodes.length + 1}`, videoUrl: '' });
             renderSeasonsBuilder();
         };
 
@@ -616,6 +659,7 @@
 
                 const card = document.createElement('div');
                 card.className = 'media-card';
+                card.tabIndex = 0;
 
                 const coverSrc = item.coverBase64 || item.coverUrl || 'https://via.placeholder.com/200x300?text=Sem+Capa';
 
@@ -674,22 +718,19 @@
                 const tabs = document.getElementById('seasonTabs');
                 tabs.innerHTML = "";
 
-                let prevCover = defaultCover;
-
                 (item.seasons || []).forEach((s, idx) => {
                     const tab = document.createElement('div');
                     tab.className = `season-tab ${idx === 0 ? 'active' : ''}`;
                     tab.innerText = `Temporada ${idx + 1}`;
+                    tab.tabIndex = 0;
                     
-                    const thisSeasonCover = s.seasonCoverBase64 || s.seasonCoverUrl;
-                    if (thisSeasonCover) prevCover = thisSeasonCover;
-                    const finalCoverForTab = prevCover;
+                    const seasonCover = s.seasonCoverBase64 || s.seasonCoverUrl || defaultCover;
 
                     tab.onclick = () => {
                         document.querySelectorAll('.season-tab').forEach(t => t.classList.remove('active'));
                         tab.classList.add('active');
-                        document.getElementById('detailCover').src = finalCoverForTab;
-                        renderEpisodesList(s.episodes || [], idx);
+                        document.getElementById('detailCover').src = seasonCover;
+                        renderEpisodesList(s.episodes || [], idx, seasonCover);
                     };
                     tabs.appendChild(tab);
                 });
@@ -698,21 +739,28 @@
                     const s0 = item.seasons[0];
                     const s0Cover = s0.seasonCoverBase64 || s0.seasonCoverUrl || defaultCover;
                     document.getElementById('detailCover').src = s0Cover;
-                    renderEpisodesList(s0.episodes || [], 0);
+                    renderEpisodesList(s0.episodes || [], 0, s0Cover);
                 }
             }
 
             document.getElementById('detailsModal').classList.remove('hidden');
         }
 
-        function renderEpisodesList(episodes, seasonIdx) {
+        function renderEpisodesList(episodes, seasonIdx, seasonCover) {
             const container = document.getElementById('episodesListContainer');
             container.innerHTML = "";
+
+            const seriesCover = activeItem.coverBase64 || activeItem.coverUrl || '';
 
             episodes.forEach((ep, idx) => {
                 const epDiv = document.createElement('div');
                 epDiv.className = 'episode-card';
+                epDiv.tabIndex = 0;
+
                 const epVideoSrc = ep.videoBase64 || ep.videoUrl;
+
+                // FALLBACK DE CAPA
+                const epThumb = ep.coverBase64 || ep.coverUrl || seasonCover || seriesCover || 'https://via.placeholder.com/150x90?text=Episodio';
 
                 epDiv.onclick = () => {
                     document.getElementById('detailsModal').classList.add('hidden');
@@ -720,8 +768,11 @@
                 };
 
                 epDiv.innerHTML = `
-                    <div style="font-size:13px; font-weight:700;">T${seasonIdx + 1} E${idx + 1} - ${ep.title || 'Sem Título'}</div>
-                    <span style="font-size:12px; color:var(--primary-color);">▶ Assistir</span>
+                    <div class="episode-thumb"><img src="${epThumb}"></div>
+                    <div style="flex:1;">
+                        <div style="font-size:12px; font-weight:800;">T${seasonIdx + 1} E${idx + 1} - ${ep.title || 'Sem Título'}</div>
+                        <span style="font-size:10px; color:var(--primary-color); font-weight:700;">▶ Assistir Episódio</span>
+                    </div>
                 `;
                 container.appendChild(epDiv);
             });
@@ -740,7 +791,7 @@
             player.play().catch(() => {});
         }
 
-        // SALVAR MÍDIA (GARANTIDO SEM PERDAS)
+        // SALVAR MÍDIA (CORRIGIDO PARA SEMPRE MANTER O EPISÓDIO 1 E ARQUIVOS)
         document.getElementById('mediaForm').onsubmit = async (e) => {
             e.preventDefault();
 
@@ -784,7 +835,9 @@
                         episodes: (s.episodes || []).map((ep, eIdx) => {
                             const oldEp = oldSeason?.episodes?.[eIdx];
                             return {
-                                title: ep.title,
+                                title: ep.title || `Episódio ${eIdx + 1}`,
+                                coverUrl: ep.coverUrl || oldEp?.coverUrl || '',
+                                coverBase64: ep.coverBase64 || oldEp?.coverBase64 || '',
                                 videoUrl: ep.videoUrl || oldEp?.videoUrl || '',
                                 videoBase64: ep.videoBase64 || oldEp?.videoBase64 || ''
                             };
@@ -796,11 +849,11 @@
             try {
                 if (editId) {
                     await set(ref(rtdb, "catalog/" + editId), payload);
-                    showMsg('Mídia editada com sucesso para todos!', 'success');
+                    showMsg('Mídia editada com sucesso!', 'success');
                 } else {
                     const newRef = push(ref(rtdb, "catalog"));
                     await set(newRef, payload);
-                    showMsg('Publicado para todos com sucesso!', 'success');
+                    showMsg('Publicado com sucesso!', 'success');
                 }
 
                 document.getElementById('creatorModal').classList.add('hidden');
@@ -809,7 +862,7 @@
                 seasonsBuilder = [];
                 loadCatalog();
             } catch (err) {
-                showMsg('Erro ao salvar: ' + err.message, 'error');
+                showMsg('Erro ao salvar no banco de dados: ' + err.message, 'error');
             }
         };
 
@@ -846,10 +899,10 @@
         };
 
         window.deleteMedia = async (id) => {
-            if (confirm("Tem certeza que deseja excluir esta mídia do catálogo global?")) {
+            if (confirm("Tem certeza que deseja excluir esta mídia do catálogo?")) {
                 try {
                     await remove(ref(rtdb, "catalog/" + id));
-                    showMsg('Mídia removida com sucesso!', 'success');
+                    showMsg('Mídia removida!', 'success');
                     loadCatalog();
                 } catch (e) {
                     showMsg('Erro ao deletar: ' + e.message, 'error');
@@ -936,8 +989,8 @@
             }
         }
 
-        // CORREÇÃO DO LOGOUT
-        document.getElementById('btnLogout').onclick = async () => {
+        // LOGOUT
+        const handleLogout = async () => {
             try {
                 await signOut(auth);
                 document.getElementById('profileModal').classList.add('hidden');
@@ -946,6 +999,9 @@
                 showMsg('Erro ao sair: ' + err.message, 'error');
             }
         };
+
+        document.getElementById('btnLogout').onclick = handleLogout;
+        document.getElementById('btnTvLogout').onclick = handleLogout;
 
         document.getElementById('toggleAuthMode').onclick = () => {
             isSignUpMode = !isSignUpMode;
@@ -992,6 +1048,7 @@
             document.getElementById('creatorTitle').innerText = "Publicar Conteúdo";
             seasonsBuilder = [];
             document.getElementById('seasonsList').innerHTML = "";
+            addSeason();
             document.getElementById('creatorModal').classList.remove('hidden');
         };
 
@@ -1016,7 +1073,7 @@
 
         document.getElementById('searchInput').oninput = renderApp;
 
-        // VERIFICAÇÃO RIGOROSA DE PERMISSÃO EXCLUSIVA
+        // AUTH & PERMISSÕES
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('authOverlay').classList.add('hidden');

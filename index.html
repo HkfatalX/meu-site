@@ -10,95 +10,112 @@
 
         :root {
             --primary-color: #e50914;
-            --bg-color: #141414;
-            --card-bg: #1f1f1f;
+            --bg-color: #0f0f12;
+            --card-bg: #18181c;
+            --modal-bg: #141418;
             --text-color: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; overflow-x: hidden; width: 100vw; }
 
-        header { position: fixed; top: 0; left: 0; width: 100%; height: 65px; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: space-between; padding: 0 4%; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .brand { font-size: 22px; font-weight: 900; color: var(--primary-color); letter-spacing: -1px; cursor: pointer; }
+        /* HEADER MOBILE OPTIMIZED */
+        header { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px; 
+            background: rgba(15, 15, 18, 0.95); backdrop-filter: blur(12px); 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 12px; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.08); 
+        }
+        .brand { font-size: 18px; font-weight: 900; color: var(--primary-color); letter-spacing: -0.5px; cursor: pointer; white-space: nowrap; }
         
-        .nav-actions { display: flex; align-items: center; gap: 8px; }
+        .nav-actions { display: flex; align-items: center; gap: 6px; }
         
-        .user-avatar-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer; border: 2px solid #fff; overflow: hidden; font-size: 14px; flex-shrink: 0; }
+        .user-avatar-btn { 
+            width: 34px; height: 34px; border-radius: 50%; background: var(--primary-color); 
+            display: flex; align-items: center; justify-content: center; font-weight: 800; 
+            cursor: pointer; border: 2px solid #fff; overflow: hidden; font-size: 13px; flex-shrink: 0; 
+        }
         .user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-        button, input, select, textarea { outline: none; }
-        button:focus-visible, input:focus-visible, .media-card:focus-visible { outline: 3px solid var(--primary-color) !important; outline-offset: 2px; }
+        .btn-icon-admin {
+            background: #25252c; border: 1px solid rgba(255,255,255,0.1); color: #fff;
+            padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
 
-        .app-container { padding-top: 80px; padding-bottom: 60px; width: 100%; max-width: 100vw; }
+        button, input, select, textarea { outline: none; }
+        
+        .app-container { padding-top: 70px; padding-bottom: 40px; width: 100%; max-width: 100vw; }
 
         /* HERO BANNER */
-        .hero-banner { width: 92%; margin: 0 auto 25px auto; min-height: 300px; border-radius: 16px; background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, var(--bg-color) 100%), #222 center/cover no-repeat; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; border: 1px solid rgba(255,255,255,0.08); }
-        .hero-title { font-size: clamp(22px, 5vw, 38px); font-weight: 900; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
-        .hero-desc { max-width: 600px; color: #ccc; font-size: clamp(12px, 2vw, 14px); line-height: 1.4; margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .hero-banner { 
+            width: 92%; margin: 0 auto 20px auto; min-height: 220px; border-radius: 14px; 
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, var(--bg-color) 100%), #222 center/cover no-repeat; 
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+        }
+        .hero-title { font-size: clamp(20px, 5vw, 32px); font-weight: 900; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
+        .hero-desc { max-width: 600px; color: #ccc; font-size: 12px; line-height: 1.4; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* CATEGORIAS */
-        .categories-bar { display: flex; gap: 8px; overflow-x: auto; padding: 0 4% 15px 4%; scrollbar-width: none; }
+        .categories-bar { display: flex; gap: 6px; overflow-x: auto; padding: 0 4% 12px 4%; scrollbar-width: none; }
         .categories-bar::-webkit-scrollbar { display: none; }
-        .category-chip { padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .category-chip { padding: 6px 14px; border-radius: 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
         .category-chip.active { background: var(--primary-color); border-color: var(--primary-color); }
 
-        /* CARROSSEL */
-        .section-row { margin-bottom: 30px; padding-left: 4%; }
-        .section-title { font-size: clamp(16px, 3vw, 20px); font-weight: 800; margin-bottom: 12px; color: var(--text-color); }
-        .carousel-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; padding-right: 4%; scrollbar-width: none; }
+        /* CARROSSEL MOBILE-FRIENDLY */
+        .section-row { margin-bottom: 24px; padding-left: 4%; }
+        .section-title { font-size: 15px; font-weight: 800; margin-bottom: 10px; color: var(--text-color); }
+        .carousel-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; padding-right: 4%; scrollbar-width: none; scroll-snap-type: x mandatory; }
         .carousel-container::-webkit-scrollbar { display: none; }
 
-        .media-card { flex: 0 0 clamp(130px, 22vw, 180px); height: clamp(195px, 33vw, 270px); border-radius: 10px; position: relative; overflow: hidden; background: var(--card-bg); cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.2s; }
-        .media-card:hover, .media-card:focus { transform: scale(1.04); border-color: var(--primary-color); }
+        .media-card { flex: 0 0 120px; height: 180px; border-radius: 8px; position: relative; overflow: hidden; background: var(--card-bg); cursor: pointer; border: 1px solid rgba(255,255,255,0.08); scroll-snap-align: start; }
         .media-card img { width: 100%; height: 100%; object-fit: cover; }
-        .media-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.9) 100%); padding: 10px; display: flex; flex-direction: column; justify-content: flex-end; }
-        .media-card-title { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .media-card-tag { font-size: 9px; font-weight: 800; color: var(--primary-color); text-transform: uppercase; }
+        .media-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.9) 100%); padding: 8px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .media-card-title { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .media-card-tag { font-size: 8px; font-weight: 800; color: var(--primary-color); text-transform: uppercase; }
 
-        .btn-primary { padding: 10px 18px; border: none; border-radius: 8px; background: var(--primary-color); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-secondary { padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: var(--text-color); font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-primary { padding: 10px 16px; border: none; border-radius: 8px; background: var(--primary-color); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-secondary { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: var(--text-color); font-size: 11px; font-weight: 600; cursor: pointer; }
 
         .input-group { margin-bottom: 12px; text-align: left; }
-        .input-group label { display: block; font-size: 11px; font-weight: 700; color: #aaa; margin-bottom: 4px; text-transform: uppercase; }
-        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #333; background: #181818; color: #fff; font-size: 13px; }
+        .input-group label { display: block; font-size: 10px; font-weight: 700; color: #aaa; margin-bottom: 4px; text-transform: uppercase; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #2a2a32; background: #18181c; color: #fff; font-size: 12px; }
 
-        .custom-file-upload { display: flex; align-items: center; justify-content: space-between; background: #181818; border: 1px dashed #444; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color 0.2s; }
-        .custom-file-upload:hover { border-color: var(--primary-color); }
-        .custom-file-upload input[type="file"] { display: none; }
-        .custom-file-btn { background: var(--primary-color); color: #fff; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 6px; pointer-events: none; }
-        .custom-file-name { font-size: 12px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
-
-        .preview-box { width: 100%; height: 120px; border-radius: 8px; background: #111; border: 1px solid #333; margin-top: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-placeholder { font-size: 11px; color: #666; font-weight: 600; }
-
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
-        .modal-body { background: #181818; border: 1px solid #2a2a2a; border-radius: 14px; width: 100%; max-width: 95vw; max-height: 90vh; overflow-y: auto; padding: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .modal-close { position: absolute; top: 12px; right: 12px; background: #2a2a2a; color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: flex-end; z-index: 1000; }
+        @media(min-width: 600px) { .modal-overlay { align-items: center; padding: 16px; } }
+        
+        .modal-body { 
+            background: var(--modal-bg); border: 1px solid #2a2a32; border-radius: 16px 16px 0 0; 
+            width: 100%; max-width: 600px; max-height: 88vh; overflow-y: auto; padding: 18px; position: relative; 
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.8); 
+        }
+        @media(min-width: 600px) { .modal-body { border-radius: 14px; max-height: 90vh; } }
+        
+        .modal-close { position: absolute; top: 12px; right: 12px; background: #2a2a32; color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; }
 
         .hidden { display: none !important; }
-        #msg { position: fixed; bottom: 15px; right: 15px; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; z-index: 2000; max-width: 90vw; word-break: break-word; }
+        #msg { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); padding: 10px 18px; border-radius: 8px; font-size: 11px; font-weight: 700; z-index: 2000; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .msg-success { background: #2e7d32; color: #fff; }
         .msg-error { background: #c62828; color: #fff; }
 
-        .season-tab-container { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
-        .season-tab { padding: 6px 14px; border-radius: 20px; background: #222; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; border: 1px solid #333; }
+        /* PLAYER AVANÇADO */
+        .player-modal-box { width: 100%; max-width: 850px; background: #000; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #2a2a32; margin: auto; }
+        .player-container-view { width: 100%; height: 50vh; max-height: 480px; min-height: 220px; background: #000; position: relative; }
+        .player-container-view iframe, .player-container-view video { width: 100%; height: 100%; border: none; display: block; }
+
+        /* SHIELD DE ANÚNCIOS PARA FULLSCREEN */
+        .player-controls-bar { padding: 10px 12px; background: #141418; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid #2a2a32; }
+        .player-tools { display: flex; gap: 6px; align-items: center; }
+
+        .season-tab-container { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 4px; }
+        .season-tab { padding: 6px 12px; border-radius: 16px; background: #222; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; border: 1px solid #333; }
         .season-tab.active { background: var(--primary-color); border-color: var(--primary-color); }
 
-        .episode-card { display: flex; align-items: center; gap: 12px; background: #222; padding: 8px; border-radius: 8px; cursor: pointer; margin-bottom: 8px; border: 1px solid #2a2a2a; }
-        .episode-card:hover, .episode-card:focus { border-color: var(--primary-color); background: #282828; }
-        .episode-thumb { width: 85px; height: 50px; border-radius: 6px; overflow: hidden; background: #000; flex-shrink: 0; }
+        .episode-card { display: flex; align-items: center; gap: 10px; background: #1c1c22; padding: 8px; border-radius: 8px; cursor: pointer; margin-bottom: 6px; border: 1px solid #2a2a32; }
+        .episode-thumb { width: 70px; height: 42px; border-radius: 4px; overflow: hidden; background: #000; flex-shrink: 0; }
         .episode-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .player-wrapper { width: 100%; max-width: 960px; background: #000; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; }
-        .player-container-view { width: 100%; height: 60vh; max-height: 540px; background: #000; position: relative; }
-        .player-container-view iframe, .player-container-view video { width: 100%; height: 100%; border: none; display: block; }
-        .admin-item { display: flex; align-items: center; justify-content: space-between; background: #222; border: 1px solid #333; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
-
-        body.is-smart-tv header { padding: 0 6%; height: 75px; }
-        body.is-smart-tv .brand { font-size: 26px; }
-        body.is-smart-tv .btn-primary, body.is-smart-tv .btn-secondary { font-size: 14px; padding: 12px 20px; }
-        body.is-smart-tv .user-avatar-btn { display: none !important; }
+        .admin-item { display: flex; align-items: center; justify-content: space-between; background: #1c1c22; border: 1px solid #2a2a32; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -107,13 +124,12 @@
         <div class="brand" onclick="window.location.hash = ''">🎬 MASTERFLIX</div>
         
         <div class="nav-actions">
-            <input type="text" id="searchInput" placeholder="Pesquisar..." style="padding: 6px 12px; border-radius: 16px; border: 1px solid #333; background: #000; color: #fff; font-size: 11px; width: 100px;">
-            <button class="btn-primary hidden" id="btnAdminManager" style="padding: 6px 10px; font-size: 11px;">⚙️ Gerenciar</button>
-            <button class="btn-primary hidden" id="btnOpenCreator" style="padding: 6px 10px; font-size: 11px;">➕ Publicar</button>
+            <input type="text" id="searchInput" placeholder="Buscar..." style="padding: 5px 10px; border-radius: 14px; border: 1px solid #2a2a32; background: #000; color: #fff; font-size: 11px; width: 85px;">
             
-            <button class="btn-secondary hidden" id="btnTvLogout" style="font-size: 11px; padding: 6px 10px; border-color: #c62828; color: #ff5252;">🚪 Sair</button>
+            <button class="btn-icon-admin hidden" id="btnAdminManager" title="Gerenciar Catalog">⚙️ <span style="display:none;" class="mobile-hide">Gerenciar</span></button>
+            <button class="btn-icon-admin hidden" id="btnOpenCreator" style="background: var(--primary-color); border:none;" title="Criar Conteúdo">➕ <span style="display:none;" class="mobile-hide">Publicar</span></button>
 
-            <div class="user-avatar-btn" id="btnOpenProfile" title="Meu Perfil" tabindex="0">
+            <div class="user-avatar-btn" id="btnOpenProfile" title="Meu Perfil">
                 <span id="avatarText">U</span>
                 <img id="avatarImg" class="hidden" src="" alt="Avatar">
             </div>
@@ -121,9 +137,9 @@
     </header>
 
     <div id="authOverlay" class="modal-overlay hidden">
-        <div class="modal-body" style="max-width: 360px; text-align: center;">
-            <div class="brand" style="font-size: 30px; margin-bottom: 10px;">🎬 MASTERFLIX</div>
-            <p style="color: #888; font-size: 12px; margin-bottom: 18px;" id="authSubtitle">Entre na sua conta para continuar</p>
+        <div class="modal-body" style="max-width: 360px; text-align: center; margin: auto;">
+            <div class="brand" style="font-size: 26px; margin-bottom: 8px;">🎬 MASTERFLIX</div>
+            <p style="color: #888; font-size: 11px; margin-bottom: 16px;" id="authSubtitle">Entre na sua conta para continuar</p>
             
             <form id="authForm">
                 <div class="input-group">
@@ -134,21 +150,21 @@
                     <label>Senha</label>
                     <input type="password" id="authPassword" placeholder="••••••••" required minlength="6">
                 </div>
-                <button type="submit" class="btn-primary" id="btnAuthSubmit" style="width: 100%; margin-top: 8px;">Entrar na Conta</button>
+                <button type="submit" class="btn-primary" id="btnAuthSubmit" style="width: 100%; margin-top: 6px;">Entrar na Conta</button>
             </form>
 
-            <p style="font-size: 12px; color: #aaa; margin-top: 15px; cursor: pointer; text-decoration: underline;" id="toggleAuthMode">Não tem uma conta? Crie uma agora</p>
+            <p style="font-size: 11px; color: #aaa; margin-top: 12px; cursor: pointer; text-decoration: underline;" id="toggleAuthMode">Não tem uma conta? Crie uma agora</p>
         </div>
     </div>
 
     <div id="adminModal" class="modal-overlay hidden">
-        <div class="modal-body" style="max-width: 550px;">
+        <div class="modal-body">
             <button class="modal-close" id="btnCloseAdmin">&times;</button>
-            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 15px;">⚙️ Gerenciar Catálogo</h2>
+            <h2 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">⚙️ Gerenciar Catálogo</h2>
             
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <input type="text" id="adminSearchInput" placeholder="Pesquisar por título..." style="flex:1; padding: 8px 12px; border-radius: 8px; border:1px solid #333; background:#111; color:#fff;">
-                <button class="btn-primary" id="btnAddNewFromAdmin">+ Criar Novo</button>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <input type="text" id="adminSearchInput" placeholder="Pesquisar..." style="flex:1; padding: 8px 10px; border-radius: 8px; border:1px solid #2a2a32; background:#111; color:#fff; font-size:12px;">
+                <button class="btn-primary" id="btnAddNewFromAdmin" style="font-size:11px;">+ Novo</button>
             </div>
 
             <div id="adminCatalogList" style="max-height: 50vh; overflow-y: auto;"></div>
@@ -156,35 +172,30 @@
     </div>
 
     <div id="profileModal" class="modal-overlay hidden">
-        <div class="modal-body" style="max-width: 400px;">
+        <div class="modal-body" style="max-width: 380px;">
             <button class="modal-close" id="btnCloseProfile">&times;</button>
-            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 15px; text-align: center;">👤 Meu Perfil</h2>
+            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; text-align: center;">👤 Meu Perfil</h2>
 
-            <div style="text-align: center; margin-bottom: 15px;">
-                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-color); margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; border: 3px solid #fff; overflow:hidden;" id="profileAvatarBigBox">
+            <div style="text-align: center; margin-bottom: 12px;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--primary-color); margin: 0 auto 8px auto; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; border: 3px solid #fff; overflow:hidden;" id="profileAvatarBigBox">
                     <span id="profileAvatarBigText">U</span>
                     <img id="profileAvatarBigImg" class="hidden" src="" style="width:100%; height:100%; object-fit:cover;">
                 </div>
-                <p id="profileEmailDisplay" style="font-size: 12px; color: #aaa; word-break: break-all;"></p>
-                <span id="profileAdminBadge" class="hidden" style="background: var(--primary-color); font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 800; text-transform: uppercase; margin-top: 5px; display: inline-block;">Administrador Exclusivo</span>
+                <p id="profileEmailDisplay" style="font-size: 11px; color: #aaa; word-break: break-all;"></p>
+                <span id="profileAdminBadge" class="hidden" style="background: var(--primary-color); font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase; margin-top: 4px; display: inline-block;">Admin</span>
             </div>
 
             <div class="input-group">
-                <label>Foto de Perfil</label>
-                <label class="custom-file-upload">
-                    <span class="custom-file-name" id="profileFileNameDisplay">Escolher Imagem...</span>
-                    <span class="custom-file-btn">Selecionar</span>
-                    <input type="file" id="profilePhotoFile" accept="image/*">
-                </label>
-                <input type="url" id="profilePhotoUrl" placeholder="Ou cole a URL da foto" style="margin-top: 6px;">
+                <label>Foto de Perfil (URL)</label>
+                <input type="url" id="profilePhotoUrl" placeholder="Cole a URL da foto">
             </div>
 
             <div class="input-group">
                 <label>Cor do Tema</label>
-                <input type="color" id="themeColorPicker" value="#e50914" style="height: 38px; padding: 2px; cursor: pointer;">
+                <input type="color" id="themeColorPicker" value="#e50914" style="height: 36px; padding: 2px; cursor: pointer;">
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: 15px;">
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
                 <button class="btn-primary" id="btnSaveProfile" style="flex: 1;">Salvar</button>
                 <button class="btn-secondary" id="btnLogout" style="flex: 1; border-color: #c62828; color: #ff5252;">Sair</button>
             </div>
@@ -194,7 +205,7 @@
     <main class="app-container">
         
         <div class="hero-banner" id="heroBanner">
-            <span style="font-size: 10px; font-weight: 800; color: var(--primary-color); text-transform: uppercase;">Destaque</span>
+            <span style="font-size: 9px; font-weight: 800; color: var(--primary-color); text-transform: uppercase;">Destaque</span>
             <h1 class="hero-title" id="heroTitle">Bem-vindo ao MasterFlix</h1>
             <p class="hero-desc" id="heroDesc">Os melhores filmes e séries diretamente no seu dispositivo.</p>
             <div>
@@ -203,14 +214,14 @@
         </div>
 
         <div class="categories-bar" id="categoriesBar">
-            <div class="category-chip active" data-cat="Todos" tabindex="0">Todos</div>
-            <div class="category-chip" data-cat="Filmes" tabindex="0">🎬 Filmes</div>
-            <div class="category-chip" data-cat="Séries" tabindex="0">📺 Séries</div>
-            <div class="category-chip" data-cat="Ação" tabindex="0">Ação</div>
-            <div class="category-chip" data-cat="Comédia" tabindex="0">Comédia</div>
-            <div class="category-chip" data-cat="Drama" tabindex="0">Drama</div>
-            <div class="category-chip" data-cat="Terror" tabindex="0">Terror</div>
-            <div class="category-chip" data-cat="Animação" tabindex="0">Animação</div>
+            <div class="category-chip active" data-cat="Todos">Todos</div>
+            <div class="category-chip" data-cat="Filmes">🎬 Filmes</div>
+            <div class="category-chip" data-cat="Séries">📺 Séries</div>
+            <div class="category-chip" data-cat="Ação">Ação</div>
+            <div class="category-chip" data-cat="Comédia">Comédia</div>
+            <div class="category-chip" data-cat="Drama">Drama</div>
+            <div class="category-chip" data-cat="Terror">Terror</div>
+            <div class="category-chip" data-cat="Animação">Animação</div>
         </div>
 
         <div class="section-row" id="moviesRow">
@@ -226,14 +237,14 @@
     </main>
 
     <div id="creatorModal" class="modal-overlay hidden">
-        <div class="modal-body" style="max-width: 600px;">
+        <div class="modal-body">
             <button class="modal-close" id="btnCloseCreator">&times;</button>
-            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 12px;" id="creatorTitle">Publicar Conteúdo</h2>
+            <h2 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;" id="creatorTitle">Publicar Conteúdo</h2>
 
             <form id="mediaForm">
                 <input type="hidden" id="editMediaId">
 
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: 6px;">
                     <div class="input-group" style="flex:1;">
                         <label>Tipo</label>
                         <select id="mediaType">
@@ -259,57 +270,47 @@
 
                 <div class="input-group">
                     <label>Título</label>
-                    <input type="text" id="mediaTitle" placeholder="Ex: Nome da Série/Filme" required>
+                    <input type="text" id="mediaTitle" placeholder="Ex: Nome do Conteúdo" required>
                 </div>
 
                 <div class="input-group">
-                    <label>Capa Principal</label>
-                    <label class="custom-file-upload">
-                        <span class="custom-file-name" id="coverFileNameDisplay">Escolher Capa Local...</span>
-                        <span class="custom-file-btn">Upload Capa</span>
-                        <input type="file" id="mediaCoverFile" accept="image/*">
-                    </label>
-                    <input type="url" id="mediaCoverUrl" placeholder="Ou cole a URL da capa" style="margin-top: 6px;">
-                    
-                    <div class="preview-box" id="coverPreviewBox">
-                        <span class="preview-placeholder" id="coverPreviewText">Preview Capa Principal</span>
-                        <img id="coverPreviewImg" class="hidden" src="">
-                    </div>
+                    <label>URL da Capa</label>
+                    <input type="url" id="mediaCoverUrl" placeholder="https://link-da-imagem.jpg" required>
                 </div>
 
                 <div class="input-group">
                     <label>Sinopse</label>
-                    <textarea id="mediaDesc" rows="3" placeholder="Descrição da mídia..." required></textarea>
+                    <textarea id="mediaDesc" rows="2" placeholder="Descrição rápida..." required></textarea>
                 </div>
 
                 <div id="movieFileArea" class="input-group">
                     <label>Link do Vídeo (Mixdrop / Embed / MP4 Direct)</label>
-                    <input type="url" id="movieVideoUrl" placeholder="Ex: https://mixdrop.top/e/8l4374qzunqml0">
+                    <input type="text" id="movieVideoUrl" placeholder="Ex: https://mixdrop.top/e/8l4374qzunqml0">
                 </div>
 
                 <div id="seriesBuilderArea" class="hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                        <span style="font-size: 12px; font-weight: 700; color: var(--primary-color);">Temporadas e Episódios</span>
-                        <button type="button" class="btn-secondary" id="btnAddSeasonBtn">+ Nova Temporada</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--primary-color);">Temporadas e Episódios</span>
+                        <button type="button" class="btn-secondary" id="btnAddSeasonBtn" style="font-size:10px; padding:4px 8px;">+ Temporada</button>
                     </div>
                     <div id="seasonsList"></div>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;" id="btnForceSave">Salvar Conteúdo</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">Salvar Conteúdo</button>
             </form>
         </div>
     </div>
 
     <div id="detailsModal" class="modal-overlay hidden">
-        <div class="modal-body" style="max-width: 500px;">
+        <div class="modal-body">
             <button class="modal-close" id="btnCloseDetails">&times;</button>
-            <img id="detailCover" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 12px;">
-            <h2 id="detailTitle" style="font-size: 20px; font-weight: 800;"></h2>
-            <div style="font-size: 11px; color: var(--primary-color); font-weight: 700; margin: 4px 0 10px 0;" id="detailMeta"></div>
-            <p id="detailDesc" style="font-size: 12px; color: #aaa; line-height: 1.4; margin-bottom: 15px;"></p>
+            <img id="detailCover" src="" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+            <h2 id="detailTitle" style="font-size: 18px; font-weight: 800;"></h2>
+            <div style="font-size: 10px; color: var(--primary-color); font-weight: 700; margin: 2px 0 8px 0;" id="detailMeta"></div>
+            <p id="detailDesc" style="font-size: 11px; color: #aaa; line-height: 1.4; margin-bottom: 12px;"></p>
 
             <div id="detailMovieArea" class="hidden">
-                <button class="btn-primary" id="btnPlayMovieFile" style="width: 100%;">▶ Iniciar Filme</button>
+                <button class="btn-primary" id="btnPlayMovieFile" style="width: 100%;">▶ Assistir Filme</button>
             </div>
 
             <div id="detailSerieArea" class="hidden">
@@ -319,13 +320,28 @@
         </div>
     </div>
 
-    <div id="playerModal" class="modal-overlay hidden">
-        <div class="player-wrapper">
-            <button class="modal-close" id="btnClosePlayer" style="z-index: 30;">&times;</button>
+    <div id="playerModal" class="modal-overlay hidden" style="align-items: center; padding: 10px;">
+        <div class="player-modal-box" id="playerModalBox">
+            <button class="modal-close" id="btnClosePlayer" style="z-index: 50; top: 8px; right: 8px;">&times;</button>
+            
             <div class="player-container-view" id="playerContainerView"></div>
-            <div style="padding: 12px 16px; background: #111; display: flex; justify-content: space-between; align-items: center;">
-                <span id="playerVideoTitle" style="font-size: 13px; font-weight: 700; max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
-                <button class="btn-secondary" id="btnToggleFull">🖥️ Tela Cheia</button>
+            
+            <div class="player-controls-bar">
+                <span id="playerVideoTitle" style="font-size: 11px; font-weight: 700; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                
+                <div class="player-tools">
+                    <button class="btn-secondary" id="btnSeekBack" style="padding: 4px 8px;">⏪ 10s</button>
+                    <button class="btn-secondary" id="btnSeekForward" style="padding: 4px 8px;">10s ⏩</button>
+                    
+                    <select id="speedSelect" class="btn-secondary" style="padding: 4px; font-size: 10px;">
+                        <option value="1">1.0x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2.0x</option>
+                    </select>
+
+                    <button class="btn-primary" id="btnToggleFull" style="padding: 4px 8px; font-size: 11px;">🖥️ Tela Cheia</button>
+                </div>
             </div>
         </div>
     </div>
@@ -358,29 +374,13 @@
         let seasonsBuilder = [];
         let selectedCategory = "Todos";
         let isSignUpMode = false;
-        let tempCoverBase64 = "";
-
-        const isSmartTV = /SmartTV|Tizen|WebOS|NetCast|Opera TV|Android TV|AppleTV|HbbTV|LG NetCast/i.test(navigator.userAgent);
-        if (isSmartTV) {
-            document.body.classList.add('is-smart-tv');
-            document.getElementById('btnTvLogout').classList.remove('hidden');
-        }
 
         function showMsg(text, type) {
             const msg = document.getElementById('msg');
             msg.innerText = text;
             msg.className = type === 'success' ? 'msg-success' : 'msg-error';
             msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 4500);
-        }
-
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
+            setTimeout(() => msg.classList.add('hidden'), 4000);
         }
 
         function applyUserTheme(color) {
@@ -390,56 +390,6 @@
         }
         const savedColor = localStorage.getItem('masterflix_theme_color');
         if (savedColor) applyUserTheme(savedColor);
-
-        function updateProfilePreview(src) {
-            if (src) {
-                document.getElementById('profileAvatarBigImg').src = src;
-                document.getElementById('profileAvatarBigImg').classList.remove('hidden');
-                document.getElementById('profileAvatarBigText').classList.add('hidden');
-            }
-        }
-
-        document.getElementById('profilePhotoFile').onchange = async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('profileFileNameDisplay').innerText = file.name;
-                const b64 = await fileToBase64(file);
-                updateProfilePreview(b64);
-            }
-        };
-
-        document.getElementById('profilePhotoUrl').oninput = (e) => {
-            if (e.target.value.trim()) updateProfilePreview(e.target.value.trim());
-        };
-
-        function updateCoverPreview(src) {
-            if (src) {
-                document.getElementById('coverPreviewImg').src = src;
-                document.getElementById('coverPreviewImg').classList.remove('hidden');
-                document.getElementById('coverPreviewText').classList.add('hidden');
-            } else {
-                document.getElementById('coverPreviewImg').classList.add('hidden');
-                document.getElementById('coverPreviewText').classList.remove('hidden');
-            }
-        }
-
-        document.getElementById('mediaCoverFile').onchange = async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                if(file.size > 2 * 1024 * 1024) {
-                    showMsg('Capa muito grande! Escolha uma foto menor que 2MB.', 'error');
-                    return;
-                }
-                document.getElementById('coverFileNameDisplay').innerText = file.name;
-                tempCoverBase64 = await fileToBase64(file);
-                updateCoverPreview(tempCoverBase64);
-            }
-        };
-
-        document.getElementById('mediaCoverUrl').oninput = (e) => {
-            if (e.target.value.trim()) updateCoverPreview(e.target.value.trim());
-            else if (!tempCoverBase64) updateCoverPreview("");
-        };
 
         document.querySelectorAll('.category-chip').forEach(chip => {
             chip.onclick = () => {
@@ -471,26 +421,18 @@
             }
         };
 
-        /* ====================================================
-           O SEGREDO ESTÁ AQUI: REMOVIDAS AS TRAVAS HTML "REQUIRED"
-           ==================================================== */
         function renderSeasonsBuilder() {
             const container = document.getElementById('seasonsList');
             container.innerHTML = "";
 
             seasonsBuilder.forEach((season, sIdx) => {
                 const sDiv = document.createElement('div');
-                sDiv.style.cssText = "background:#222; border:1px solid #333; border-radius:8px; padding:10px; margin-top:10px;";
-                const sCover = season.seasonCoverBase64 || season.seasonCoverUrl || '';
+                sDiv.style.cssText = "background:#1c1c22; border:1px solid #2a2a32; border-radius:8px; padding:8px; margin-top:8px;";
 
                 sDiv.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <strong style="color:var(--primary-color); font-size:13px;">Temporada ${sIdx + 1}</strong>
-                        <button type="button" class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="addEpisode(${sIdx})">+ Add Episódio</button>
-                    </div>
-                    <div class="input-group">
-                        <label>Capa da Temporada (Opcional)</label>
-                        <input type="url" value="${season.seasonCoverUrl || ''}" placeholder="Cole URL da capa" onchange="seasonsBuilder[${sIdx}].seasonCoverUrl = this.value" style="margin-top:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong style="color:var(--primary-color); font-size:12px;">Temporada ${sIdx + 1}</strong>
+                        <button type="button" class="btn-secondary" style="font-size:9px; padding:3px 6px;" onclick="addEpisode(${sIdx})">+ Add Episódio</button>
                     </div>
                     <div id="episodesListBuilder_${sIdx}"></div>
                 `;
@@ -500,17 +442,17 @@
 
                 (season.episodes || []).forEach((ep, eIdx) => {
                     const epDiv = document.createElement('div');
-                    epDiv.style.cssText = "background:#181818; border:1px solid #2a2a2a; border-radius:6px; padding:10px; margin-top:8px;";
+                    epDiv.style.cssText = "background:#141418; border:1px solid #2a2a32; border-radius:6px; padding:8px; margin-top:6px;";
 
                     epDiv.innerHTML = `
-                        <strong style="font-size:11px; color:#aaa;">EPISÓDIO ${eIdx + 1}</strong>
-                        <div class="input-group" style="margin-top:4px;">
-                            <label>Título do Episódio</label>
-                            <input type="text" id="epTitle_${sIdx}_${eIdx}" value="${ep.title || ''}" placeholder="Ex: Episódio ${eIdx + 1}">
+                        <strong style="font-size:10px; color:#aaa;">EPISÓDIO ${eIdx + 1}</strong>
+                        <div class="input-group" style="margin-top:4px; margin-bottom:6px;">
+                            <label style="font-size:9px;">Título</label>
+                            <input type="text" id="epTitle_${sIdx}_${eIdx}" value="${ep.title || ''}" placeholder="Ex: Piloto">
                         </div>
-                        <div class="input-group">
-                            <label>Link do Vídeo (Mixdrop / Embed / MP4)</label>
-                            <input type="text" id="epVideoUrl_${sIdx}_${eIdx}" value="${ep.videoUrl || ''}" placeholder="Ex: https://mixdrop.top/e/8l4374qzunqml0">
+                        <div class="input-group" style="margin-bottom:2px;">
+                            <label style="font-size:9px;">Link do Vídeo</label>
+                            <input type="text" id="epVideoUrl_${sIdx}_${eIdx}" value="${ep.videoUrl || ''}" placeholder="Mixdrop / Embed / MP4">
                         </div>
                     `;
                     epListDiv.appendChild(epDiv);
@@ -568,11 +510,10 @@
 
                 const card = document.createElement('div');
                 card.className = 'media-card';
-                card.tabIndex = 0;
-                const coverSrc = item.coverBase64 || item.coverUrl || 'https://via.placeholder.com/200x300?text=Sem+Capa';
+                const coverSrc = item.coverUrl || 'https://via.placeholder.com/200x300?text=Sem+Capa';
 
                 card.innerHTML = `
-                    <img src="${coverSrc}" alt="${item.title}">
+                    <img src="${coverSrc}" alt="${item.title}" loading="lazy">
                     <div class="media-card-overlay">
                         <span class="media-card-tag">${item.category || (item.type === 'movie' ? 'Filme' : 'Série')}</span>
                         <div class="media-card-title">${item.title}</div>
@@ -590,14 +531,14 @@
             activeItem = item;
             document.getElementById('heroTitle').innerText = item.title;
             document.getElementById('heroDesc').innerText = item.description;
-            const coverSrc = item.coverBase64 || item.coverUrl || '';
+            const coverSrc = item.coverUrl || '';
             if (coverSrc) document.getElementById('heroBanner').style.backgroundImage = `linear-gradient(180deg, rgba(0,0,0,0.3) 0%, var(--bg-color) 100%), url('${coverSrc}')`;
             document.getElementById('heroPlayBtn').onclick = () => openDetails(item);
         }
 
         function openDetails(item) {
             activeItem = item;
-            const defaultCover = item.coverBase64 || item.coverUrl || '';
+            const defaultCover = item.coverUrl || '';
             document.getElementById('detailCover').src = defaultCover;
             document.getElementById('detailTitle').innerText = item.title;
             document.getElementById('detailMeta').innerText = `${item.category || 'Geral'} • ${item.type === 'movie' ? 'FILME' : 'SÉRIE'} • ${item.year}`;
@@ -617,38 +558,30 @@
                     const tab = document.createElement('div');
                     tab.className = `season-tab ${idx === 0 ? 'active' : ''}`;
                     tab.innerText = `Temporada ${idx + 1}`;
-                    tab.tabIndex = 0;
-                    const seasonCover = s.seasonCoverBase64 || s.seasonCoverUrl || defaultCover;
-
+                    
                     tab.onclick = () => {
                         document.querySelectorAll('.season-tab').forEach(t => t.classList.remove('active'));
                         tab.classList.add('active');
-                        document.getElementById('detailCover').src = seasonCover;
-                        renderEpisodesList(s.episodes || [], idx, seasonCover);
+                        renderEpisodesList(s.episodes || [], idx, defaultCover);
                     };
                     tabs.appendChild(tab);
                 });
 
                 if (item.seasons && item.seasons.length > 0) {
-                    const s0 = item.seasons[0];
-                    const s0Cover = s0.seasonCoverBase64 || s0.seasonCoverUrl || defaultCover;
-                    document.getElementById('detailCover').src = s0Cover;
-                    renderEpisodesList(s0.episodes || [], 0, s0Cover);
+                    renderEpisodesList(item.seasons[0].episodes || [], 0, defaultCover);
                 }
             }
             document.getElementById('detailsModal').classList.remove('hidden');
         }
 
-        function renderEpisodesList(episodes, seasonIdx, seasonCover) {
+        function renderEpisodesList(episodes, seasonIdx, seriesCover) {
             const container = document.getElementById('episodesListContainer');
             container.innerHTML = "";
-            const seriesCover = activeItem.coverBase64 || activeItem.coverUrl || '';
 
             episodes.forEach((ep, idx) => {
                 const epDiv = document.createElement('div');
                 epDiv.className = 'episode-card';
-                epDiv.tabIndex = 0;
-                const epThumb = ep.coverBase64 || ep.coverUrl || seasonCover || seriesCover || 'https://via.placeholder.com/150x90?text=Episodio';
+                const epThumb = seriesCover || 'https://via.placeholder.com/150x90?text=Episodio';
 
                 epDiv.onclick = () => {
                     document.getElementById('detailsModal').classList.add('hidden');
@@ -657,8 +590,8 @@
                 epDiv.innerHTML = `
                     <div class="episode-thumb"><img src="${epThumb}"></div>
                     <div style="flex:1;">
-                        <div style="font-size:12px; font-weight:800;">T${seasonIdx + 1} E${idx + 1} - ${ep.title || 'Sem Título'}</div>
-                        <span style="font-size:10px; color:var(--primary-color); font-weight:700;">▶ Assistir Episódio</span>
+                        <div style="font-size:11px; font-weight:800;">T${seasonIdx + 1} E${idx + 1} - ${ep.title || 'Sem Título'}</div>
+                        <span style="font-size:9px; color:var(--primary-color); font-weight:700;">▶ Assistir</span>
                     </div>
                 `;
                 container.appendChild(epDiv);
@@ -678,99 +611,113 @@
             return formatted;
         }
 
+        /* ====================================================
+           PLAYER MELHORADO + PROTEÇÃO DE ANÚNCIOS + TELA CHEIA
+           ==================================================== */
         function playVideo(rawUrl, title) {
-            if (!rawUrl) { showMsg('Nenhum link de vídeo cadastrado!', 'error'); return; }
+            if (!rawUrl) { showMsg('Nenhum link de vídeo fornecido!', 'error'); return; }
             const url = formatVideoUrl(rawUrl);
             const container = document.getElementById('playerContainerView');
             document.getElementById('playerVideoTitle').innerText = title;
             container.innerHTML = "";
 
-            if (!url.toLowerCase().endsWith('.mp4')) {
+            const isDirectVideo = url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.m3u8');
+
+            if (!isDirectVideo) {
+                // IFRAME COM SANDBOX PARA BLOQUEAR POPUPS DE ANÚNCIOS NO FULLSCREEN
                 const iframe = document.createElement('iframe');
                 iframe.src = url;
                 iframe.allow = "autoplay; fullscreen; encrypted-media";
                 iframe.allowFullscreen = true;
+                // 'sandbox' restringe popups indesejadas e redirecionamentos
+                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
                 container.appendChild(iframe);
             } else {
                 const video = document.createElement('video');
+                video.id = "activeVideoPlayer";
                 video.src = url;
                 video.controls = true;
                 video.autoplay = true;
                 container.appendChild(video);
+
+                // Configurações dos botões do Player para MP4/Vídeo Direto
+                document.getElementById('btnSeekBack').onclick = () => video.currentTime -= 10;
+                document.getElementById('btnSeekForward').onclick = () => video.currentTime += 10;
+                document.getElementById('speedSelect').onchange = (e) => video.playbackRate = parseFloat(e.target.value);
             }
+
             document.getElementById('playerModal').classList.remove('hidden');
         }
 
+        // TELA CHEIA NATIVA CORRIGIDA PARA CELULAR
+        document.getElementById('btnToggleFull').onclick = () => {
+            const playerBox = document.getElementById('playerModalBox');
+            
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (playerBox.requestFullscreen) {
+                    playerBox.requestFullscreen();
+                } else if (playerBox.webkitRequestFullscreen) {
+                    playerBox.webkitRequestFullscreen();
+                } else if (playerBox.msRequestFullscreen) {
+                    playerBox.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        };
+
         /* ====================================================
-           O SALVAMENTO AGORA MOSTRA O ERRO NA SUA CARA
-           SE O LINK ESTIVER FALTANDO OU ERRADO
+           SALVAMENTO DO CONTEÚDO
            ==================================================== */
         document.getElementById('mediaForm').onsubmit = async (e) => {
             e.preventDefault();
 
             const editId = document.getElementById('editMediaId').value;
-            const existingItem = editId ? mediaCatalog.find(m => m.id === editId) : null;
-
             const type = document.getElementById('mediaType').value;
-            const title = document.getElementById('mediaTitle').value.trim();
             
             let payload = {
                 type: type,
                 category: document.getElementById('mediaCategory').value,
-                title: title,
+                title: document.getElementById('mediaTitle').value.trim(),
                 year: document.getElementById('mediaYear').value.trim(),
                 description: document.getElementById('mediaDesc').value.trim(),
-                coverUrl: document.getElementById('mediaCoverUrl').value.trim() || (existingItem ? existingItem.coverUrl || '' : ''),
-                coverBase64: tempCoverBase64 || (existingItem ? existingItem.coverBase64 || '' : '')
+                coverUrl: document.getElementById('mediaCoverUrl').value.trim()
             };
 
             if (type === 'movie') {
                 payload.videoUrl = document.getElementById('movieVideoUrl').value.trim();
             } else {
-                let bloqueioErro = false;
                 payload.seasons = seasonsBuilder.map((s, sIdx) => {
                     return {
                         seasonNumber: s.seasonNumber || sIdx + 1,
-                        seasonCoverUrl: s.seasonCoverUrl || '',
                         episodes: (s.episodes || []).map((ep, eIdx) => {
-                            // PUXANDO DIRETAMENTE DA TELA NO MOMENTO DO CLIQUE (GARANTIA DE SUCESSO)
                             const inputLink = document.getElementById(`epVideoUrl_${sIdx}_${eIdx}`);
                             const inputTitle = document.getElementById(`epTitle_${sIdx}_${eIdx}`);
-                            
-                            const valorLink = inputLink ? inputLink.value.trim() : '';
-                            const valorTitle = inputTitle ? inputTitle.value.trim() : `Episódio ${eIdx + 1}`;
-
-                            if (!valorLink) {
-                                bloqueioErro = true;
-                            }
-
                             return {
-                                title: valorTitle,
-                                videoUrl: valorLink
+                                title: inputTitle ? inputTitle.value.trim() : `Episódio ${eIdx + 1}`,
+                                videoUrl: inputLink ? inputLink.value.trim() : ''
                             };
                         })
                     };
                 });
-
-                if (bloqueioErro) {
-                    showMsg('ERRO: Você esqueceu de colocar o link em algum episódio!', 'error');
-                    return; // Para o salvamento na hora
-                }
             }
 
             try {
                 if (editId) {
                     await set(ref(rtdb, "catalog/" + editId), payload);
-                    showMsg('Mídia editada e salva!', 'success');
+                    showMsg('Conteúdo atualizado!', 'success');
                 } else {
                     const newRef = push(ref(rtdb, "catalog"));
                     await set(newRef, payload);
-                    showMsg('Série/Filme salvo com sucesso!', 'success');
+                    showMsg('Conteúdo publicado!', 'success');
                 }
 
                 document.getElementById('creatorModal').classList.add('hidden');
                 document.getElementById('mediaForm').reset();
-                tempCoverBase64 = "";
                 seasonsBuilder = [];
                 await loadCatalog();
             } catch (err) {
@@ -791,8 +738,6 @@
             document.getElementById('mediaCoverUrl').value = item.coverUrl || '';
             document.getElementById('movieVideoUrl').value = item.videoUrl || '';
 
-            tempCoverBase64 = item.coverBase64 || '';
-            updateCoverPreview(tempCoverBase64 || item.coverUrl || '');
             document.getElementById('creatorTitle').innerText = "Editar Conteúdo";
 
             if (item.type === 'serie') {
@@ -810,8 +755,8 @@
         };
 
         window.deleteMedia = async (id) => {
-            if (confirm("Deseja mesmo apagar do catálogo?")) {
-                try { await remove(ref(rtdb, "catalog/" + id)); showMsg('Removido com sucesso!', 'success'); loadCatalog(); }
+            if (confirm("Deseja apagar este item?")) {
+                try { await remove(ref(rtdb, "catalog/" + id)); showMsg('Removido!', 'success'); loadCatalog(); }
                 catch (e) { showMsg('Erro ao deletar: ' + e.message, 'error'); }
             }
         };
@@ -826,10 +771,10 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div><strong style="font-size:13px;">${item.title}</strong><div style="font-size:10px; color:#aaa;">${item.type === 'movie' ? 'Filme' : 'Série'} • ${item.category || 'Geral'}</div></div>
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn-secondary" style="font-size:11px;" onclick="editMedia('${item.id}')">✏️ Editar</button>
-                        <button class="btn-secondary" style="font-size:11px; color:#ff5252;" onclick="deleteMedia('${item.id}')">🗑️ Excluir</button>
+                    <div><strong style="font-size:12px;">${item.title}</strong><div style="font-size:9px; color:#aaa;">${item.type === 'movie' ? 'Filme' : 'Série'}</div></div>
+                    <div style="display:flex; gap:4px;">
+                        <button class="btn-secondary" style="font-size:10px; padding:4px 8px;" onclick="editMedia('${item.id}')">✏️ Edit</button>
+                        <button class="btn-secondary" style="font-size:10px; padding:4px 8px; color:#ff5252;" onclick="deleteMedia('${item.id}')">🗑️</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -843,12 +788,10 @@
 
         document.getElementById('btnSaveProfile').onclick = async () => {
             applyUserTheme(document.getElementById('themeColorPicker').value);
-            const file = document.getElementById('profilePhotoFile').files[0];
             const photoUrl = document.getElementById('profilePhotoUrl').value.trim();
-            if (file) localStorage.setItem('masterflix_user_avatar', await fileToBase64(file));
-            else if (photoUrl) localStorage.setItem('masterflix_user_avatar', photoUrl);
+            if (photoUrl) localStorage.setItem('masterflix_user_avatar', photoUrl);
             updateUserAvatarUI();
-            showMsg('Perfil atualizado com sucesso!', 'success');
+            showMsg('Perfil salvo!', 'success');
             document.getElementById('profileModal').classList.add('hidden');
         };
 
@@ -866,14 +809,14 @@
             }
         }
 
-        const handleLogout = async () => { try { await signOut(auth); document.getElementById('profileModal').classList.add('hidden'); showMsg('Você saiu da conta.', 'success'); } catch (err) { showMsg('Erro ao sair: ' + err.message, 'error'); } };
-        document.getElementById('btnLogout').onclick = handleLogout; document.getElementById('btnTvLogout').onclick = handleLogout;
+        const handleLogout = async () => { try { await signOut(auth); document.getElementById('profileModal').classList.add('hidden'); showMsg('Você saiu.', 'success'); } catch (err) { showMsg('Erro: ' + err.message, 'error'); } };
+        document.getElementById('btnLogout').onclick = handleLogout;
 
         document.getElementById('toggleAuthMode').onclick = () => {
             isSignUpMode = !isSignUpMode;
-            document.getElementById('authSubtitle').innerText = isSignUpMode ? "Crie sua conta para acessar o catálogo" : "Entre na sua conta para continuar";
-            document.getElementById('btnAuthSubmit').innerText = isSignUpMode ? "Cadastrar Conta" : "Entrar na Conta";
-            document.getElementById('toggleAuthMode').innerText = isSignUpMode ? "Já tem uma conta? Faça login" : "Não tem uma conta? Crie uma agora";
+            document.getElementById('authSubtitle').innerText = isSignUpMode ? "Crie sua conta para continuar" : "Entre na sua conta para continuar";
+            document.getElementById('btnAuthSubmit').innerText = isSignUpMode ? "Cadastrar" : "Entrar";
+            document.getElementById('toggleAuthMode').innerText = isSignUpMode ? "Já tem uma conta? Entrar" : "Não tem uma conta? Criar";
         };
 
         document.getElementById('authForm').onsubmit = async (e) => {
@@ -883,7 +826,7 @@
                 if (isSignUpMode) { await createUserWithEmailAndPassword(auth, email, pass); showMsg('Conta criada!', 'success'); }
                 else { await signInWithEmailAndPassword(auth, email, pass); showMsg('Autenticado!', 'success'); }
                 document.getElementById('authOverlay').classList.add('hidden');
-            } catch (err) { showMsg('Falha na autenticação: ' + err.message, 'error'); }
+            } catch (err) { showMsg('Erro: ' + err.message, 'error'); }
         };
 
         document.getElementById('btnOpenProfile').onclick = () => document.getElementById('profileModal').classList.remove('hidden');
@@ -891,7 +834,6 @@
 
         document.getElementById('btnOpenCreator').onclick = () => {
             document.getElementById('editMediaId').value = ""; document.getElementById('mediaForm').reset(); document.getElementById('movieVideoUrl').value = "";
-            document.getElementById('coverFileNameDisplay').innerText = "Escolher Capa Local..."; tempCoverBase64 = ""; updateCoverPreview("");
             document.getElementById('creatorTitle').innerText = "Publicar Conteúdo"; seasonsBuilder = []; document.getElementById('seasonsList').innerHTML = "";
             addSeason(); document.getElementById('creatorModal').classList.remove('hidden');
         };
@@ -899,11 +841,7 @@
         document.getElementById('btnCloseCreator').onclick = () => document.getElementById('creatorModal').classList.add('hidden');
         document.getElementById('btnCloseDetails').onclick = () => { window.location.hash = ''; document.getElementById('detailsModal').classList.add('hidden'); };
         document.getElementById('btnClosePlayer').onclick = () => { document.getElementById('playerContainerView').innerHTML = ""; document.getElementById('playerModal').classList.add('hidden'); };
-        document.getElementById('btnToggleFull').onclick = () => {
-            const c = document.getElementById('playerContainerView');
-            if (!document.fullscreenElement) { if (c.requestFullscreen) c.requestFullscreen(); else if (c.webkitRequestFullscreen) c.webkitRequestFullscreen(); }
-            else { if (document.exitFullscreen) document.exitFullscreen(); }
-        };
+
         document.getElementById('searchInput').oninput = renderApp;
 
         onAuthStateChanged(auth, (user) => {
@@ -912,14 +850,19 @@
                 document.getElementById('profileEmailDisplay').innerText = user.email;
                 updateUserAvatarUI();
                 if (user.email.toLowerCase() === EXCLUSIVE_ADMIN_EMAIL.toLowerCase()) {
-                    document.getElementById('btnOpenCreator').classList.remove('hidden'); document.getElementById('btnAdminManager').classList.remove('hidden'); document.getElementById('profileAdminBadge').classList.remove('hidden');
+                    document.getElementById('btnOpenCreator').classList.remove('hidden'); 
+                    document.getElementById('btnAdminManager').classList.remove('hidden'); 
+                    document.getElementById('profileAdminBadge').classList.remove('hidden');
                 } else {
-                    document.getElementById('btnOpenCreator').classList.add('hidden'); document.getElementById('btnAdminManager').classList.add('hidden'); document.getElementById('profileAdminBadge').classList.add('hidden');
+                    document.getElementById('btnOpenCreator').classList.add('hidden'); 
+                    document.getElementById('btnAdminManager').classList.add('hidden'); 
+                    document.getElementById('profileAdminBadge').classList.add('hidden');
                 }
                 loadCatalog();
             } else {
                 document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('btnOpenCreator').classList.add('hidden'); document.getElementById('btnAdminManager').classList.add('hidden');
+                document.getElementById('btnOpenCreator').classList.add('hidden'); 
+                document.getElementById('btnAdminManager').classList.add('hidden');
             }
         });
     </script>

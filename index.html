@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MasterFlix - Filmes e Séries</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
 
@@ -18,7 +21,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; overflow-x: hidden; width: 100vw; }
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; overflow-x: hidden; width: 100vw; font-size: 14px; }
 
         /* HEADER ANIMADO */
         header { 
@@ -31,7 +34,7 @@
         header.scrolled { background: rgba(20, 20, 20, 0.95); border-bottom: 1px solid rgba(255,255,255,0.08); }
         .brand { font-size: 22px; font-weight: 900; color: var(--primary-color); letter-spacing: -0.5px; cursor: pointer; text-transform: uppercase; }
         
-        .nav-actions { display: flex; align-items: center; gap: 10px; }
+        .nav-actions { display: flex; align-items: center; gap: 12px; }
         
         .user-avatar-btn { 
             width: 38px; height: 38px; border-radius: 8px; background: var(--primary-color); 
@@ -52,43 +55,41 @@
 
         button, input, select, textarea { outline: none; }
         
-        .app-container { padding-top: 70px; padding-bottom: 50px; width: 100%; max-width: 100vw; }
+        .app-container { padding-top: 74px; padding-bottom: 50px; width: 100%; max-width: 100vw; }
 
         /* HERO BANNER */
         .hero-banner { 
-            width: 95%; max-width: 1400px; margin: 0 auto 28px auto; min-height: 380px; border-radius: 16px; 
+            width: 95%; max-width: 1600px; margin: 0 auto 28px auto; min-height: 380px; border-radius: 16px; 
             background: linear-gradient(180deg, rgba(20,20,20,0.1) 0%, var(--bg-color) 100%), #1f1f1f center/cover no-repeat; 
             display: flex; flex-direction: column; justify-content: flex-end; padding: 32px; 
             position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); transition: background-image 0.5s ease-in-out;
         }
-        @media(max-width: 600px) { .hero-banner { min-height: 260px; padding: 16px; } }
 
         .hero-badge { display: inline-block; background: var(--primary-color); font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; text-transform: uppercase; width: fit-content; }
         .hero-title { font-size: clamp(24px, 5vw, 42px); font-weight: 900; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
         .hero-desc { max-width: 650px; color: #d2d2d2; font-size: 13px; line-height: 1.5; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* CATEGORIAS */
-        .categories-bar { display: flex; gap: 8px; overflow-x: auto; padding: 0 2.5% 16px 2.5%; scrollbar-width: none; }
+        .categories-bar { display: flex; gap: 10px; overflow-x: auto; padding: 0 2.5% 16px 2.5%; scrollbar-width: none; }
         .categories-bar::-webkit-scrollbar { display: none; }
         .category-chip { padding: 8px 18px; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
         .category-chip:hover, .category-chip.active { background: var(--primary-color); border-color: var(--primary-color); transform: translateY(-2px); }
 
-        /* CARROSSEL */
-        .section-row { margin-bottom: 32px; padding-left: 2.5%; }
-        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
-        .carousel-container { display: flex; gap: 12px; overflow-x: auto; padding: 8px 2.5% 12px 0; scrollbar-width: none; scroll-snap-type: x mandatory; }
+        /* CARROSSEL DE MÍDIAS */
+        .section-row { margin-bottom: 36px; padding-left: 2.5%; }
+        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 14px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
+        .carousel-container { display: flex; gap: 14px; overflow-x: auto; padding: 8px 2.5% 12px 0; scrollbar-width: none; scroll-snap-type: x mandatory; }
         .carousel-container::-webkit-scrollbar { display: none; }
 
         .media-card { 
-            flex: 0 0 145px; height: 215px; border-radius: 8px; position: relative; overflow: hidden; 
+            flex: 0 0 145px; height: 215px; border-radius: 10px; position: relative; overflow: hidden; 
             background: var(--card-bg); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); 
             scroll-snap-align: start; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        @media(min-width: 768px) { .media-card { flex: 0 0 170px; height: 250px; } }
         
         .media-card:hover { transform: scale(1.08) translateY(-5px); z-index: 10; box-shadow: 0 12px 25px rgba(0,0,0,0.8); }
         .media-card img { width: 100%; height: 100%; object-fit: cover; }
-        .media-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.95) 100%); padding: 10px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .media-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.95) 100%); padding: 12px; display: flex; flex-direction: column; justify-content: flex-end; }
         .media-card-title { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .media-card-tag { font-size: 9px; font-weight: 800; color: var(--primary-color); text-transform: uppercase; }
 
@@ -104,7 +105,7 @@
         }
         .file-upload-box:hover { border-color: var(--primary-color); background: rgba(229, 9, 20, 0.05); }
         .file-upload-label { font-size: 11px; font-weight: 700; color: #ccc; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .file-preview-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .file-preview-img { width: 100%; max-height: 140px; object-fit: cover; border-radius: 6px; margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); }
 
         .input-group { margin-bottom: 14px; text-align: left; }
         .input-group label { display: block; font-size: 11px; font-weight: 700; color: #aaa; margin-bottom: 4px; text-transform: uppercase; }
@@ -119,22 +120,22 @@
         
         .modal-body { 
             background: var(--modal-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px 16px 0 0; 
-            width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 20px; position: relative; 
+            width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 24px; position: relative; 
             box-shadow: 0 -10px 30px rgba(0,0,0,0.9); 
         }
         @media(min-width: 600px) { .modal-body { border-radius: 12px; } }
         
-        .modal-close { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.1); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s; }
+        .modal-close { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.1); color: #fff; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s; }
         .modal-close:hover { background: var(--primary-color); }
 
         .hidden { display: none !important; }
-        #msg { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 12px; font-weight: 700; z-index: 2000; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); animation: fadeIn 0.3s ease; }
+        #msg { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 700; z-index: 2000; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.8); animation: fadeIn 0.3s ease; }
         .msg-success { background: #2e7d32; color: #fff; }
         .msg-error { background: #c62828; color: #fff; }
 
-        /* PLAYER MIXDROP EXCLUSIVO (SEM OVERLAYS) */
+        /* PLAYER MIXDROP EXCLUSIVO */
         .player-modal-box { 
-            width: 100%; max-width: 1100px; height: 85vh; max-height: 650px; background: #000; 
+            width: 100%; max-width: 1200px; height: 85vh; max-height: 700px; background: #000; 
             border-radius: 12px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); 
             margin: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.95); 
         }
@@ -145,16 +146,70 @@
         .season-tab { padding: 8px 16px; border-radius: 20px; background: #222; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; border: 1px solid #333; transition: all 0.2s; }
         .season-tab.active { background: var(--primary-color); border-color: var(--primary-color); }
 
-        .episode-card { display: flex; align-items: center; gap: 12px; background: #1f1f1f; padding: 10px; border-radius: 8px; cursor: pointer; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.2s, transform 0.2s; }
+        .episode-card { display: flex; align-items: center; gap: 12px; background: #1f1f1f; padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.2s, transform 0.2s; }
         .episode-card:hover { background: #2a2a2a; transform: translateX(4px); }
-        .episode-thumb { width: 95px; height: 56px; border-radius: 6px; overflow: hidden; background: #000; flex-shrink: 0; position: relative; }
+        .episode-thumb { width: 100px; height: 60px; border-radius: 6px; overflow: hidden; background: #000; flex-shrink: 0; position: relative; }
         .episode-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .admin-item { display: flex; align-items: center; justify-content: space-between; background: #1f1f1f; border: 1px solid #333; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; }
+        .admin-item { display: flex; align-items: center; justify-content: space-between; background: #1f1f1f; border: 1px solid #333; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px; }
 
         /* PERFIL ESTILIZADO */
-        .profile-card-header { position: relative; border-radius: 12px; overflow: hidden; background: #222; min-height: 110px; margin-bottom: 45px; border: 1px solid rgba(255,255,255,0.1); }
-        .profile-banner-bg { width: 100%; height: 110px; object-fit: cover; }
-        .profile-avatar-overlay { position: absolute; bottom: -35px; left: 20px; width: 75px; height: 75px; border-radius: 12px; background: var(--primary-color); border: 3px solid var(--modal-bg); overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; box-shadow: 0 6px 15px rgba(0,0,0,0.6); }
+        .profile-card-header { position: relative; border-radius: 12px; overflow: hidden; background: #222; min-height: 120px; margin-bottom: 48px; border: 1px solid rgba(255,255,255,0.1); }
+        .profile-banner-bg { width: 100%; height: 120px; object-fit: cover; }
+        .profile-avatar-overlay { position: absolute; bottom: -35px; left: 20px; width: 80px; height: 80px; border-radius: 14px; background: var(--primary-color); border: 3px solid var(--modal-bg); overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; box-shadow: 0 6px 15px rgba(0,0,0,0.6); }
+
+        /* ESTILOS DA PRÉ-VISUALIZAÇÃO DE DISPOSITIVOS */
+        .device-preview-wrapper { display: flex; gap: 10px; justify-content: space-between; margin-top: 14px; overflow-x: auto; padding-bottom: 6px; }
+        .device-box { background: #111; border: 1px solid #333; border-radius: 8px; padding: 8px; text-align: center; flex: 1; min-width: 110px; }
+        .device-box label { font-size: 10px; font-weight: 800; color: #aaa; margin-bottom: 6px; display: block; }
+        .device-screen { overflow: hidden; border: 1px solid #444; margin: 0 auto; background: #000; position: relative; }
+        .device-mobile { width: 60px; height: 100px; border-radius: 6px; }
+        .device-pc { width: 120px; height: 75px; border-radius: 4px; }
+        .device-tv { width: 140px; height: 80px; border-radius: 4px; border: 2px solid #555; }
+        .device-screen img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ADAPTAÇÕES DE ESCALA PARA DISPOSITIVOS GRANDES (PC & TV) */
+        @media (min-width: 1024px) {
+            body { font-size: 15px; }
+            header { height: 76px; padding: 0 40px; }
+            .brand { font-size: 26px; }
+            .user-avatar-btn { width: 44px; height: 44px; font-size: 16px; }
+            .btn-icon-admin { font-size: 13px; padding: 9px 16px; }
+            .hero-banner { min-height: 460px; padding: 48px; margin-bottom: 36px; }
+            .hero-badge { font-size: 12px; padding: 4px 10px; }
+            .hero-title { font-size: 48px; margin-bottom: 12px; }
+            .hero-desc { font-size: 15px; max-width: 750px; margin-bottom: 24px; }
+            .btn-primary { font-size: 15px; padding: 12px 26px; }
+            .btn-secondary { font-size: 14px; padding: 10px 18px; }
+            .category-chip { font-size: 14px; padding: 10px 22px; }
+            .section-title { font-size: 22px; margin-bottom: 16px; }
+            .media-card { flex: 0 0 190px; height: 280px; border-radius: 12px; }
+            .media-card-title { font-size: 14px; }
+            .media-card-tag { font-size: 10px; }
+            .input-group label { font-size: 12px; }
+            .input-group input, .input-group select, .input-group textarea { font-size: 14px; padding: 12px 14px; }
+            .modal-body { padding: 32px; max-width: 720px; }
+            .file-upload-label { font-size: 13px; }
+            .file-upload-box { padding: 18px; }
+            .episode-thumb { width: 120px; height: 72px; }
+            .episode-card { padding: 14px; }
+        }
+
+        @media (min-width: 1600px), (tv) {
+            body { font-size: 17px; }
+            header { height: 86px; padding: 0 50px; }
+            .brand { font-size: 30px; }
+            .user-avatar-btn { width: 50px; height: 50px; font-size: 18px; }
+            .btn-icon-admin { font-size: 15px; padding: 11px 20px; }
+            .hero-banner { min-height: 520px; padding: 60px; }
+            .hero-title { font-size: 56px; }
+            .hero-desc { font-size: 17px; max-width: 850px; }
+            .btn-primary { font-size: 17px; padding: 14px 30px; }
+            .category-chip { font-size: 15px; padding: 12px 26px; }
+            .section-title { font-size: 26px; }
+            .media-card { flex: 0 0 230px; height: 340px; }
+            .media-card-title { font-size: 16px; }
+            .player-modal-box { max-width: 1500px; height: 88vh; max-height: 850px; }
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -165,10 +220,10 @@
         <div class="brand" onclick="window.location.hash = ''">🎬 MASTERFLIX</div>
         
         <div class="nav-actions">
-            <input type="text" id="searchInput" placeholder="Buscar..." style="padding: 6px 12px; border-radius: 16px; border: 1px solid #333; background: rgba(0,0,0,0.6); color: #fff; font-size: 12px; width: 110px;">
+            <input type="text" id="searchInput" placeholder="Buscar..." style="padding: 8px 14px; border-radius: 18px; border: 1px solid #333; background: rgba(0,0,0,0.6); color: #fff; font-size: 13px; width: 140px;">
             
-            <button class="btn-icon-admin hidden" id="btnAdminManager" title="Gerenciar Catálogo">⚙️ <span style="display:none;" class="mobile-hide">Gerenciar</span></button>
-            <button class="btn-icon-admin hidden" id="btnOpenCreator" style="background: var(--primary-color); border:none;" title="Criar Conteúdo">➕ <span style="display:none;" class="mobile-hide">Publicar</span></button>
+            <button class="btn-icon-admin hidden" id="btnAdminManager" title="Gerenciar Catálogo">⚙️ Gerenciar</button>
+            <button class="btn-icon-admin hidden" id="btnOpenCreator" style="background: var(--primary-color); border:none;" title="Criar Conteúdo">➕ Publicar</button>
 
             <div class="user-avatar-btn" id="btnOpenProfile" title="Meu Perfil">
                 <span id="avatarText">U</span>
@@ -178,9 +233,9 @@
     </header>
 
     <div id="authOverlay" class="modal-overlay hidden">
-        <div class="modal-body" style="max-width: 380px; text-align: center; margin: auto;">
+        <div class="modal-body" style="max-width: 420px; text-align: center; margin: auto;">
             <div class="brand" style="font-size: 28px; margin-bottom: 8px;">🎬 MASTERFLIX</div>
-            <p style="color: #aaa; font-size: 12px; margin-bottom: 18px;" id="authSubtitle">Entre na sua conta para continuar</p>
+            <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;" id="authSubtitle">Entre na sua conta para continuar</p>
             
             <form id="authForm">
                 <div class="input-group">
@@ -191,21 +246,21 @@
                     <label>Senha</label>
                     <input type="password" id="authPassword" placeholder="••••••••" required minlength="6">
                 </div>
-                <button type="submit" class="btn-primary" id="btnAuthSubmit" style="width: 100%; margin-top: 8px;">Entrar na Conta</button>
+                <button type="submit" class="btn-primary" id="btnAuthSubmit" style="width: 100%; margin-top: 10px;">Entrar na Conta</button>
             </form>
 
-            <p style="font-size: 12px; color: #aaa; margin-top: 16px; cursor: pointer; text-decoration: underline;" id="toggleAuthMode">Não tem uma conta? Crie uma agora</p>
+            <p style="font-size: 13px; color: #aaa; margin-top: 18px; cursor: pointer; text-decoration: underline;" id="toggleAuthMode">Não tem uma conta? Crie uma agora</p>
         </div>
     </div>
 
     <div id="adminModal" class="modal-overlay hidden">
         <div class="modal-body">
             <button class="modal-close" id="btnCloseAdmin">&times;</button>
-            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 14px;">⚙️ Gerenciar Catálogo</h2>
+            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">⚙️ Gerenciar Catálogo</h2>
             
-            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                 <input type="text" id="adminSearchInput" placeholder="Pesquisar título..." style="flex:1;">
-                <button class="btn-primary" id="btnAddNewFromAdmin" style="font-size:12px;">+ Novo Conteúdo</button>
+                <button class="btn-primary" id="btnAddNewFromAdmin" style="font-size:13px;">+ Novo Conteúdo</button>
             </div>
 
             <div id="adminCatalogList" style="max-height: 55vh; overflow-y: auto;"></div>
@@ -213,7 +268,7 @@
     </div>
 
     <div id="profileModal" class="modal-overlay hidden">
-        <div class="modal-body" style="max-width: 480px;">
+        <div class="modal-body" style="max-width: 520px;">
             <button class="modal-close" id="btnCloseProfile">&times;</button>
             
             <div class="profile-card-header">
@@ -224,16 +279,16 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 16px;">
-                <h3 id="profileNameDisplay" style="font-size: 18px; font-weight: 800;">Usuário</h3>
-                <p id="profileEmailDisplay" style="font-size: 11px; color: #aaa; word-break: break-all;"></p>
-                <p id="profileBioDisplay" style="font-size: 12px; color: #ddd; margin-top: 4px; font-style: italic;">"Maratonando minhas séries favoritas!"</p>
-                <span id="profileAdminBadge" class="hidden" style="background: var(--primary-color); font-size: 9px; padding: 3px 8px; border-radius: 4px; font-weight: 800; text-transform: uppercase; margin-top: 6px; display: inline-block;">Administrador</span>
+            <div style="margin-bottom: 18px;">
+                <h3 id="profileNameDisplay" style="font-size: 20px; font-weight: 800;">Usuário</h3>
+                <p id="profileEmailDisplay" style="font-size: 12px; color: #aaa; word-break: break-all;"></p>
+                <p id="profileBioDisplay" style="font-size: 13px; color: #ddd; margin-top: 6px; font-style: italic;">"Maratonando minhas séries favoritas!"</p>
+                <span id="profileAdminBadge" class="hidden" style="background: var(--primary-color); font-size: 10px; padding: 4px 10px; border-radius: 4px; font-weight: 800; text-transform: uppercase; margin-top: 8px; display: inline-block;">Administrador</span>
             </div>
 
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 16px 0;">
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 18px 0;">
 
-            <h4 style="font-size: 13px; font-weight: 800; margin-bottom: 12px; color: var(--primary-color);">⚙️ Personalizar Perfil</h4>
+            <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 14px; color: var(--primary-color);">⚙️ Personalizar Perfil</h4>
 
             <div class="input-group">
                 <label>Nome / Apelido</label>
@@ -259,7 +314,7 @@
 
             <div class="input-group">
                 <label>Foto do Perfil (Arquivo do Dispositivo)</label>
-                <div class="file-upload-box" onclick="document.getElementById('profilePhotoFile').click();">
+                <div class="file-upload-box" onclick="triggerCropModal('profilePhotoFile', 'profilePhotoPreview', 1)">
                     <span class="file-upload-label">📁 Escolher Foto de Perfil</span>
                     <input type="file" id="profilePhotoFile" accept="image/*" class="hidden">
                     <img id="profilePhotoPreview" class="file-preview-img hidden">
@@ -268,19 +323,19 @@
 
             <div class="input-group">
                 <label>Capa de Fundo do Perfil (Arquivo do Dispositivo)</label>
-                <div class="file-upload-box" onclick="document.getElementById('profileBannerFile').click();">
+                <div class="file-upload-box" onclick="triggerCropModal('profileBannerFile', 'profileBannerPreview', 16/9)">
                     <span class="file-upload-label">🖼️ Escolher Banner de Fundo</span>
                     <input type="file" id="profileBannerFile" accept="image/*" class="hidden">
                     <img id="profileBannerPreview" class="file-preview-img hidden">
                 </div>
             </div>
 
-            <div class="input-group">
+            <div class="input-group" id="themeColorGroup">
                 <label>Cor Principal do Tema</label>
-                <input type="color" id="themeColorPicker" value="#e50914" style="height: 40px; padding: 2px; cursor: pointer; width:100%; border-radius:6px; border:1px solid #333; background:#111;">
+                <input type="color" id="themeColorPicker" value="#e50914" style="height: 44px; padding: 2px; cursor: pointer; width:100%; border-radius:6px; border:1px solid #333; background:#111;">
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 18px;">
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
                 <button class="btn-primary" id="btnSaveProfile" style="flex: 1;">Salvar Alterações</button>
                 <button class="btn-secondary" id="btnLogout" style="flex: 1; border-color: #c62828; color: #ff5252;">Sair</button>
             </div>
@@ -324,12 +379,12 @@
     <div id="creatorModal" class="modal-overlay hidden">
         <div class="modal-body">
             <button class="modal-close" id="btnCloseCreator">&times;</button>
-            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 14px;" id="creatorTitle">Publicar Conteúdo</h2>
+            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;" id="creatorTitle">Publicar Conteúdo</h2>
 
             <form id="mediaForm">
                 <input type="hidden" id="editMediaId">
 
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: 10px;">
                     <div class="input-group" style="flex:1;">
                         <label>Tipo</label>
                         <select id="mediaType">
@@ -360,7 +415,7 @@
 
                 <div class="input-group">
                     <label>Capa Principal (Arquivo do Dispositivo)</label>
-                    <div class="file-upload-box" onclick="document.getElementById('mediaCoverFile').click();">
+                    <div class="file-upload-box" onclick="triggerCropModal('mediaCoverFile', 'mediaCoverPreview', 2/3)">
                         <span class="file-upload-label">📸 Selecionar Arquivo da Capa</span>
                         <input type="file" id="mediaCoverFile" accept="image/*" class="hidden">
                         <img id="mediaCoverPreview" class="file-preview-img hidden">
@@ -369,7 +424,7 @@
 
                 <div class="input-group">
                     <label>Sinopse / Descrição</label>
-                    <textarea id="mediaDesc" rows="2" placeholder="Resumo do conteúdo..." required></textarea>
+                    <textarea id="mediaDesc" rows="3" placeholder="Resumo do conteúdo..." required></textarea>
                 </div>
 
                 <div id="movieFileArea" class="input-group">
@@ -378,14 +433,14 @@
                 </div>
 
                 <div id="seriesBuilderArea" class="hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                        <span style="font-size: 12px; font-weight: 800; color: var(--primary-color);">Estrutura de Temporadas e Episódios</span>
-                        <button type="button" class="btn-secondary" id="btnAddSeasonBtn" style="font-size:10px; padding:4px 8px;">+ Adicionar Temporada</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                        <span style="font-size: 13px; font-weight: 800; color: var(--primary-color);">Estrutura de Temporadas e Episódios</span>
+                        <button type="button" class="btn-secondary" id="btnAddSeasonBtn" style="font-size:11px; padding:6px 10px;">+ Adicionar Temporada</button>
                     </div>
                     <div id="seasonsList"></div>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 14px;">Salvar Conteúdo</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 16px;">Salvar Conteúdo</button>
             </form>
         </div>
     </div>
@@ -393,10 +448,10 @@
     <div id="detailsModal" class="modal-overlay hidden">
         <div class="modal-body">
             <button class="modal-close" id="btnCloseDetails">&times;</button>
-            <img id="detailCover" src="" style="width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; transition: src 0.3s ease;">
-            <h2 id="detailTitle" style="font-size: 20px; font-weight: 800;"></h2>
-            <div style="font-size: 11px; color: var(--primary-color); font-weight: 700; margin: 4px 0 10px 0;" id="detailMeta"></div>
-            <p id="detailDesc" style="font-size: 12px; color: #ccc; line-height: 1.5; margin-bottom: 16px;"></p>
+            <img id="detailCover" src="" style="width: 100%; height: 260px; object-fit: cover; border-radius: 10px; margin-bottom: 14px; transition: src 0.3s ease;">
+            <h2 id="detailTitle" style="font-size: 22px; font-weight: 800;"></h2>
+            <div style="font-size: 12px; color: var(--primary-color); font-weight: 700; margin: 6px 0 12px 0;" id="detailMeta"></div>
+            <p id="detailDesc" style="font-size: 13px; color: #ccc; line-height: 1.6; margin-bottom: 18px;"></p>
 
             <div id="detailMovieArea" class="hidden">
                 <button class="btn-primary" id="btnPlayMovieFile" style="width: 100%;">▶ Assistir Filme</button>
@@ -413,6 +468,42 @@
         <div class="player-modal-box" id="playerModalBox">
             <button class="modal-close" id="btnClosePlayer" style="z-index: 999; top: 12px; right: 12px; background: rgba(0,0,0,0.7);">&times;</button>
             <div class="player-container-view" id="playerContainerView"></div>
+        </div>
+    </div>
+
+    <div id="cropperModal" class="modal-overlay hidden" style="z-index: 3000;">
+        <div class="modal-body" style="max-width: 600px;">
+            <button class="modal-close" id="btnCloseCropper">&times;</button>
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px; color: var(--primary-color);">✂️ Redimensionar e Ajustar Imagem</h3>
+            
+            <div style="max-height: 300px; background:#000; overflow:hidden; border-radius:8px; border:1px solid #333;">
+                <img id="cropperImage" style="max-width: 100%; display: block;">
+            </div>
+
+            <div class="device-preview-wrapper">
+                <div class="device-box">
+                    <label>📱 CELULAR</label>
+                    <div class="device-screen device-mobile">
+                        <img id="prevMobile" src="">
+                    </div>
+                </div>
+                <div class="device-box">
+                    <label>💻 PC / DESKTOP</label>
+                    <div class="device-screen device-pc">
+                        <img id="prevPC" src="">
+                    </div>
+                </div>
+                <div class="device-box">
+                    <label>📺 SMART TV</label>
+                    <div class="device-screen device-tv">
+                        <img id="prevTV" src="">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+                <button type="button" class="btn-primary" id="btnConfirmCrop" style="flex: 1;">✓ Confirmar Enquadramento</button>
+            </div>
         </div>
     </div>
 
@@ -445,7 +536,78 @@
         let selectedCategory = "Todos";
         let isSignUpMode = false;
 
-        // FUNÇÃO DE LEITURA DE ARQUIVO LOCAL (DISPOSITIVO) PARA BASE64
+        /* SISTEMA DE REDIMENSIONAMENTO E CROPPER DE IMAGENS */
+        let cropperInstance = null;
+        let currentTargetInput = null;
+        let currentTargetPreview = null;
+
+        window.triggerCropModal = function(inputId, previewId, aspectRatio) {
+            const fileInput = document.getElementById(inputId);
+            currentTargetInput = fileInput;
+            currentTargetPreview = document.getElementById(previewId);
+
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const cropperImg = document.getElementById('cropperImage');
+                    cropperImg.src = event.target.result;
+                    document.getElementById('cropperModal').classList.remove('hidden');
+
+                    if (cropperInstance) cropperInstance.destroy();
+
+                    cropperInstance = new Cropper(cropperImg, {
+                        aspectRatio: aspectRatio || NaN,
+                        viewMode: 1,
+                        background: false,
+                        crop() {
+                            const canvas = cropperInstance.getCroppedCanvas({ width: 600 });
+                            if (canvas) {
+                                const url = canvas.toDataURL('image/jpeg', 0.85);
+                                document.getElementById('prevMobile').src = url;
+                                document.getElementById('prevPC').src = url;
+                                document.getElementById('prevTV').src = url;
+                            }
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            };
+            fileInput.click();
+        };
+
+        document.getElementById('btnConfirmCrop').onclick = () => {
+            if (!cropperInstance) return;
+            const canvas = cropperInstance.getCroppedCanvas({ width: 800 });
+            if (canvas) {
+                const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                if (currentTargetPreview) {
+                    currentTargetPreview.src = croppedDataUrl;
+                    currentTargetPreview.classList.remove('hidden');
+                }
+            }
+            document.getElementById('cropperModal').classList.add('hidden');
+            if (cropperInstance) cropperInstance.destroy();
+        };
+
+        document.getElementById('btnCloseCropper').onclick = () => {
+            document.getElementById('cropperModal').classList.add('hidden');
+            if (cropperInstance) cropperInstance.destroy();
+        };
+
+        /* DETECÇÃO DE SMART TV */
+        function isTVDevice() {
+            const ua = navigator.userAgent.toLowerCase();
+            return /smarttv|googletv|appletv|hbbtv|pov_tv|netcast|viera|bravia|tizen|webos|crkey|playstation|xbox|nintendo/i.test(ua);
+        }
+
+        if (isTVDevice()) {
+            const themeGroup = document.getElementById('themeColorGroup');
+            if (themeGroup) themeGroup.style.display = 'none';
+        }
+
         function readFileAsBase64(fileInput) {
             return new Promise((resolve) => {
                 const file = fileInput.files && fileInput.files[0];
@@ -456,24 +618,6 @@
                 reader.readAsDataURL(file);
             });
         }
-
-        function setupFilePreview(inputEl, previewEl) {
-            inputEl.onchange = () => {
-                const file = inputEl.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        previewEl.src = e.target.result;
-                        previewEl.classList.remove('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-        }
-
-        setupFilePreview(document.getElementById('profilePhotoFile'), document.getElementById('profilePhotoPreview'));
-        setupFilePreview(document.getElementById('profileBannerFile'), document.getElementById('profileBannerPreview'));
-        setupFilePreview(document.getElementById('mediaCoverFile'), document.getElementById('mediaCoverPreview'));
 
         // Animação Header
         window.onscroll = () => {
@@ -491,12 +635,15 @@
         }
 
         function applyUserTheme(color) {
-            if (!color) return;
+            if (!color || isTVDevice()) return;
             document.documentElement.style.setProperty('--primary-color', color);
             localStorage.setItem('masterflix_theme_color', color);
         }
-        const savedColor = localStorage.getItem('masterflix_theme_color');
-        if (savedColor) applyUserTheme(savedColor);
+        
+        if (!isTVDevice()) {
+            const savedColor = localStorage.getItem('masterflix_theme_color');
+            if (savedColor) applyUserTheme(savedColor);
+        }
 
         document.querySelectorAll('.category-chip').forEach(chip => {
             chip.onclick = () => {
@@ -528,23 +675,23 @@
             }
         };
 
-        /* CONSTRUTOR DE TEMPORADAS E EPISÓDIOS COM ARQUIVOS */
+        /* CONSTRUTOR DE TEMPORADAS E EPISÓDIOS COM CROPPER */
         function renderSeasonsBuilder() {
             const container = document.getElementById('seasonsList');
             container.innerHTML = "";
 
             seasonsBuilder.forEach((season, sIdx) => {
                 const sDiv = document.createElement('div');
-                sDiv.style.cssText = "background:#181818; border:1px solid #333; border-radius:8px; padding:10px; margin-top:10px;";
+                sDiv.style.cssText = "background:#181818; border:1px solid #333; border-radius:8px; padding:12px; margin-top:12px;";
 
                 sDiv.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <strong style="color:var(--primary-color); font-size:13px;">Temporada ${sIdx + 1}</strong>
-                        <button type="button" class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="addEpisode(${sIdx})">+ Add Episódio</button>
+                        <strong style="color:var(--primary-color); font-size:14px;">Temporada ${sIdx + 1}</strong>
+                        <button type="button" class="btn-secondary" style="font-size:11px; padding:4px 10px;" onclick="addEpisode(${sIdx})">+ Add Episódio</button>
                     </div>
                     <div class="input-group" style="margin-bottom:8px;">
                         <label style="font-size:10px;">Foto da Temporada ${sIdx + 1} (Arquivo)</label>
-                        <div class="file-upload-box" id="seasonCoverBox_${sIdx}">
+                        <div class="file-upload-box" onclick="triggerCropModal('seasonCoverFile_${sIdx}', 'seasonCoverPrev_${sIdx}', 16/9)">
                             <span class="file-upload-label">📁 Selecionar Foto da Temporada</span>
                             <input type="file" id="seasonCoverFile_${sIdx}" accept="image/*" class="hidden">
                             <img id="seasonCoverPrev_${sIdx}" src="${season.seasonCoverUrl || ''}" class="file-preview-img ${season.seasonCoverUrl ? '' : 'hidden'}">
@@ -555,44 +702,32 @@
 
                 container.appendChild(sDiv);
 
-                const sFileInput = sDiv.querySelector(`#seasonCoverFile_${sIdx}`);
-                const sPrev = sDiv.querySelector(`#seasonCoverPrev_${sIdx}`);
-                const sBox = sDiv.querySelector(`#seasonCoverBox_${sIdx}`);
-                sBox.onclick = (e) => { if (e.target !== sFileInput) sFileInput.click(); };
-                setupFilePreview(sFileInput, sPrev);
-
                 const epListDiv = sDiv.querySelector(`#episodesListBuilder_${sIdx}`);
 
                 (season.episodes || []).forEach((ep, eIdx) => {
                     const epDiv = document.createElement('div');
-                    epDiv.style.cssText = "background:#111; border:1px solid #282828; border-radius:6px; padding:8px; margin-top:8px;";
+                    epDiv.style.cssText = "background:#111; border:1px solid #282828; border-radius:6px; padding:10px; margin-top:10px;";
 
                     epDiv.innerHTML = `
-                        <strong style="font-size:10px; color:#aaa;">EPISÓDIO ${eIdx + 1}</strong>
-                        <div class="input-group" style="margin-top:4px; margin-bottom:6px;">
-                            <label style="font-size:9px;">Título</label>
+                        <strong style="font-size:11px; color:#aaa;">EPISÓDIO ${eIdx + 1}</strong>
+                        <div class="input-group" style="margin-top:6px; margin-bottom:8px;">
+                            <label style="font-size:10px;">Título</label>
                             <input type="text" id="epTitle_${sIdx}_${eIdx}" value="${ep.title || ''}" placeholder="Ex: Nome do Episódio">
                         </div>
-                        <div class="input-group" style="margin-bottom:6px;">
-                            <label style="font-size:9px;">Foto (Thumbnail) do Episódio (Arquivo)</label>
-                            <div class="file-upload-box" id="epThumbBox_${sIdx}_${eIdx}">
+                        <div class="input-group" style="margin-bottom:8px;">
+                            <label style="font-size:10px;">Foto (Thumbnail) do Episódio (Arquivo)</label>
+                            <div class="file-upload-box" onclick="triggerCropModal('epThumbFile_${sIdx}_${eIdx}', 'epThumbPrev_${sIdx}_${eIdx}', 16/9)">
                                 <span class="file-upload-label">📸 Selecionar Foto do Episódio</span>
                                 <input type="file" id="epThumbFile_${sIdx}_${eIdx}" accept="image/*" class="hidden">
                                 <img id="epThumbPrev_${sIdx}_${eIdx}" src="${ep.thumbUrl || ''}" class="file-preview-img ${ep.thumbUrl ? '' : 'hidden'}">
                             </div>
                         </div>
                         <div class="input-group" style="margin-bottom:2px;">
-                            <label style="font-size:9px;">Link do Vídeo (Mixdrop)</label>
+                            <label style="font-size:10px;">Link do Vídeo (Mixdrop)</label>
                             <input type="text" id="epVideoUrl_${sIdx}_${eIdx}" value="${ep.videoUrl || ''}" placeholder="Mixdrop Link">
                         </div>
                     `;
                     epListDiv.appendChild(epDiv);
-
-                    const epFileInput = epDiv.querySelector(`#epThumbFile_${sIdx}_${eIdx}`);
-                    const epPrev = epDiv.querySelector(`#epThumbPrev_${sIdx}_${eIdx}`);
-                    const epBox = epDiv.querySelector(`#epThumbBox_${sIdx}_${eIdx}`);
-                    epBox.onclick = (e) => { if (e.target !== epFileInput) epFileInput.click(); };
-                    setupFilePreview(epFileInput, epPrev);
                 });
             });
         }
@@ -736,8 +871,8 @@
                 epDiv.innerHTML = `
                     <div class="episode-thumb"><img src="${epThumb}"></div>
                     <div style="flex:1;">
-                        <div style="font-size:12px; font-weight:800;">T${seasonIdx + 1} E${idx + 1} - ${ep.title || 'Sem Título'}</div>
-                        <span style="font-size:10px; color:var(--primary-color); font-weight:700;">▶ Assistir</span>
+                        <div style="font-size:13px; font-weight:800;">T${seasonIdx + 1} E${idx + 1} - ${ep.title || 'Sem Título'}</div>
+                        <span style="font-size:11px; color:var(--primary-color); font-weight:700;">▶ Assistir</span>
                     </div>
                 `;
                 container.appendChild(epDiv);
@@ -757,7 +892,6 @@
             return formatted;
         }
 
-        /* PLAYER COM SUPORTE TOTAL A TELA CHEIA DO MIXDROP (PERMISSÕES COMPLETAS) */
         function playVideo(rawUrl, title) {
             if (!rawUrl) { showMsg('Nenhum link de vídeo fornecido!', 'error'); return; }
             const url = formatVideoUrl(rawUrl);
@@ -779,16 +913,15 @@
             document.getElementById('playerModal').classList.remove('hidden');
         }
 
-        /* SALVAMENTO NO FIREBASE */
+        /* SALVAMENTO DO FORMULÁRIO COM IMAGENS CORTADAS */
         document.getElementById('mediaForm').onsubmit = async (e) => {
             e.preventDefault();
 
             const editId = document.getElementById('editMediaId').value;
             const type = document.getElementById('mediaType').value;
 
-            // Foto de Capa Principal
-            let coverBase64 = await readFileAsBase64(document.getElementById('mediaCoverFile'));
-            if (!coverBase64 && editId) {
+            let coverBase64 = document.getElementById('mediaCoverPreview').src;
+            if ((!coverBase64 || coverBase64.includes('window.location')) && editId) {
                 const existing = mediaCatalog.find(m => m.id === editId);
                 if (existing) coverBase64 = existing.coverUrl;
             }
@@ -808,16 +941,14 @@
                 const updatedSeasons = [];
                 for (let sIdx = 0; sIdx < seasonsBuilder.length; sIdx++) {
                     const s = seasonsBuilder[sIdx];
-                    const seasonFileInput = document.getElementById(`seasonCoverFile_${sIdx}`);
-                    let sCover = seasonFileInput ? await readFileAsBase64(seasonFileInput) : null;
-                    if (!sCover) sCover = s.seasonCoverUrl || '';
+                    const seasonPrevImg = document.getElementById(`seasonCoverPrev_${sIdx}`);
+                    let sCover = seasonPrevImg ? seasonPrevImg.src : (s.seasonCoverUrl || '');
 
                     const updatedEpisodes = [];
                     for (let eIdx = 0; eIdx < (s.episodes || []).length; eIdx++) {
                         const ep = s.episodes[eIdx];
-                        const epFileInput = document.getElementById(`epThumbFile_${sIdx}_${eIdx}`);
-                        let epThumb = epFileInput ? await readFileAsBase64(epFileInput) : null;
-                        if (!epThumb) epThumb = ep.thumbUrl || '';
+                        const epPrevImg = document.getElementById(`epThumbPrev_${sIdx}_${eIdx}`);
+                        let epThumb = epPrevImg ? epPrevImg.src : (ep.thumbUrl || '');
 
                         const epTitleInput = document.getElementById(`epTitle_${sIdx}_${eIdx}`);
                         const epVideoInput = document.getElementById(`epVideoUrl_${sIdx}_${eIdx}`);
@@ -908,10 +1039,10 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div><strong style="font-size:13px;">${item.title}</strong><div style="font-size:10px; color:#aaa;">${item.type === 'movie' ? 'Filme' : 'Série'}</div></div>
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn-secondary" style="font-size:11px; padding:4px 8px;" onclick="editMedia('${item.id}')">✏️ Editar</button>
-                        <button class="btn-secondary" style="font-size:11px; padding:4px 8px; color:#ff5252;" onclick="deleteMedia('${item.id}')">🗑️</button>
+                    <div><strong style="font-size:14px;">${item.title}</strong><div style="font-size:11px; color:#aaa;">${item.type === 'movie' ? 'Filme' : 'Série'}</div></div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="editMedia('${item.id}')">✏️ Editar</button>
+                        <button class="btn-secondary" style="font-size:12px; padding:6px 12px; color:#ff5252;" onclick="deleteMedia('${item.id}')">🗑️</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -925,21 +1056,23 @@
 
         /* SALVAMENTO DO PERFIL DO USUÁRIO */
         document.getElementById('btnSaveProfile').onclick = async () => {
-            const themeColor = document.getElementById('themeColorPicker').value;
-            applyUserTheme(themeColor);
+            if (!isTVDevice()) {
+                const themeColor = document.getElementById('themeColorPicker').value;
+                applyUserTheme(themeColor);
+            }
 
             const nameVal = document.getElementById('profileNameInput').value.trim();
             const bioVal = document.getElementById('profileBioInput').value.trim();
             const favGenreVal = document.getElementById('profileFavGenreInput').value;
 
-            const photoBase64 = await readFileAsBase64(document.getElementById('profilePhotoFile'));
-            const bannerBase64 = await readFileAsBase64(document.getElementById('profileBannerFile'));
+            const photoBase64 = document.getElementById('profilePhotoPreview').src;
+            const bannerBase64 = document.getElementById('profileBannerPreview').src;
 
             if (nameVal) localStorage.setItem('masterflix_user_name', nameVal);
             if (bioVal) localStorage.setItem('masterflix_user_bio', bioVal);
             if (favGenreVal) localStorage.setItem('masterflix_user_fav_genre', favGenreVal);
-            if (photoBase64) localStorage.setItem('masterflix_user_avatar', photoBase64);
-            if (bannerBase64) localStorage.setItem('masterflix_user_banner', bannerBase64);
+            if (photoBase64 && !photoBase64.includes('window.location')) localStorage.setItem('masterflix_user_avatar', photoBase64);
+            if (bannerBase64 && !bannerBase64.includes('window.location')) localStorage.setItem('masterflix_user_banner', bannerBase64);
 
             updateUserAvatarUI();
             showMsg('Perfil atualizado com sucesso!', 'success');

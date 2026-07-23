@@ -38,7 +38,8 @@ let isAdmin = false;
 let suggestionsSelectMode = false;
 let selectedSuggestionIds = new Set();
 let allSuggestions = [];
-let authProcessing = false; // Flag pra evitar duplo disparo
+let authProcessing = false;
+let currentUserUid = null; // Rastreia qual user está logado
 
 const playerBox = document.getElementById('playerModalBox');
 const playerControls = document.getElementById('playerControlsTop');
@@ -63,7 +64,6 @@ function formatVideoUrl(u) { if (!u) return ''; let f = u.trim(); if (f.includes
 function formatBytes(b) { if (b === 0) return '0 B'; const k = 1024; const s = ['B','KB','MB','GB']; const i = Math.floor(Math.log(b) / Math.log(k)); return parseFloat((b / Math.pow(k, i)).toFixed(2)) + ' ' + s[i]; }
 function estimateJsonBytes(obj) { try { return new Blob([JSON.stringify(obj)]).size; } catch(e) { return JSON.stringify(obj).length * 2; } }
 
-// Traduz erros do Firebase pra português
 function translateAuthError(errorCode) {
     const errors = {
         'auth/email-already-in-use': 'Este e-mail já está cadastrado! Faça login.',
@@ -71,14 +71,52 @@ function translateAuthError(errorCode) {
         'auth/weak-password': 'Senha muito fraca. Use no mínimo 6 caracteres.',
         'auth/user-not-found': 'Conta não encontrada. Verifique o e-mail ou cadastre-se.',
         'auth/wrong-password': 'Senha incorreta. Tente novamente.',
-        'auth/invalid-credential': 'E-mail ou senha incorretos. Tente novamente.',
-        'auth/too-many-requests': 'Muitas tentativas. Aguarde um momento e tente novamente.',
+        'auth/invalid-credential': 'E-mail ou senha incorretos.',
+        'auth/too-many-requests': 'Muitas tentativas. Aguarde e tente novamente.',
         'auth/network-request-failed': 'Sem conexão com a internet.',
-        'auth/operation-not-allowed': 'Operação não permitida. Contate o administrador.',
+        'auth/operation-not-allowed': 'Operação não permitida.',
         'auth/user-disabled': 'Esta conta foi desativada.',
-        'auth/requires-recent-login': 'Faça login novamente para continuar.'
+        'auth/requires-recent-login': 'Faça login novamente.'
     };
-    return errors[errorCode] || `Erro de autenticação: ${errorCode}`;
+    return errors[errorCode] || `Erro: ${errorCode}`;
+}
+
+// ========== CACHE POR USUÁRIO ==========
+// Cada usuário tem seu próprio cache no localStorage, indexado pelo UID
+function getUserCacheKey(key) {
+    if (!currentUserUid) return null;
+    return `masterflix_${currentUserUid}_${key}`;
+}
+
+function setUserCache(key, value) {
+    const k = getUserCacheKey(key);
+    if (k && value) localStorage.setItem(k, value);
+}
+
+function getUserCache(key) {
+    const k = getUserCacheKey(key);
+    if (!k) return null;
+    return localStorage.getItem(k);
+}
+
+function clearCurrentUserCache() {
+    if (!currentUserUid) return;
+    const prefix = `masterflix_${currentUserUid}_`;
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) keysToRemove.push(key);
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+}
+
+// Limpa cache antigo do formato global (sem UID) — migração
+function clearLegacyCache() {
+    const legacyKeys = [
+        'masterflix_user_name', 'masterflix_user_bio', 'masterflix_user_fav_genre',
+        'masterflix_user_avatar', 'masterflix_user_banner'
+    ];
+    legacyKeys.forEach(k => localStorage.removeItem(k));
 }
 
 if (!isTVDevice()) { const sc = localStorage.getItem('masterflix_theme_color'); if (sc) applyUserTheme(sc); }
@@ -252,12 +290,14 @@ async function loadCatalog() {
 
 // ========== CONTINUE WATCHING ==========
 function saveContinueWatching(mi, extra='') {
+    if (!currentUserUid) return;
     try {
-        let cl = JSON.parse(localStorage.getItem('masterflix_continue_watching')||'[]');
+        const storageKey = `masterflix_${currentUserUid}_continue`;
+        let cl = JSON.parse(localStorage.getItem(storageKey)||'[]');
         cl = cl.filter(i=>i.id!==mi.id);
         cl.unshift({id:mi.id,title:mi.title,type:mi.type,coverUrl:getBackdropUrl(mi)||getPosterUrl(mi),duration:mi.duration||extra||'45m',timestamp:Date.now(),extra});
         if (cl.length>20) cl.pop();
-        localStorage.setItem('masterflix_continue_watching',JSON.stringify(cl));
+        localStorage.setItem(storageKey, JSON.stringify(cl));
         renderContinueWatching();
     } catch(e) { console.error(e); }
 }
@@ -266,8 +306,10 @@ function renderContinueWatching() {
     const cr = document.getElementById('continueRow');
     const cc = document.getElementById('continueCarousel');
     cc.innerHTML = "";
+    if (!currentUserUid) { cr.classList.add('hidden'); return; }
     try {
-        let list = JSON.parse(localStorage.getItem('masterflix_continue_watching')||'[]');
+        const storageKey = `masterflix_${currentUserUid}_continue`;
+        let list = JSON.parse(localStorage.getItem(storageKey)||'[]');
         if (selectedCategory === "Filmes") list = list.filter(i => i.type === 'movie');
         else if (selectedCategory === "Séries") list = list.filter(i => i.type === 'serie');
         else if (selectedCategory !== "Todos") {
@@ -471,18 +513,14 @@ function openCreator() {
 // ========== SUGGESTIONS (USER) ==========
 document.getElementById('btnCloseSuggestion').onclick = () => document.getElementById('suggestionModal').classList.add('hidden');
 document.getElementById('btnSendSuggestion').onclick = async () => {
-    const user = auth.currentUser; if (!user) { showMsg('Faça login primeiro!','error'); return; }
+    const user = auth.currentUser; if (!user) { showMsg('Faça login!','error'); return; }
     const text = document.getElementById('suggestionText').value.trim();
-    if (!text) { showMsg('Escreva algo!','error'); return; }
-    if (text.length < 5) { showMsg('Sugestão muito curta!','error'); return; }
+    if (!text || text.length < 5) { showMsg('Escreva algo válido!','error'); return; }
     try {
-        const userName = localStorage.getItem('masterflix_user_name') || user.email.split('@')[0];
-        await set(push(ref(rtdb,"suggestions")), {
-            userId: user.uid, userEmail: user.email, userName: userName,
-            text: text, timestamp: Date.now()
-        });
+        const userName = getUserCache('name') || user.email.split('@')[0];
+        await set(push(ref(rtdb,"suggestions")), { userId: user.uid, userEmail: user.email, userName, text, timestamp: Date.now() });
         document.getElementById('suggestionText').value = '';
-        showMsg('Sugestão enviada! Obrigado! 💡','success');
+        showMsg('Sugestão enviada! 💡','success');
         document.getElementById('suggestionModal').classList.add('hidden');
     } catch(e) { showMsg('Erro: '+e.message,'error'); }
 };
@@ -492,118 +530,48 @@ document.getElementById('btnCloseSuggestionsAdmin').onclick = () => { exitSelect
 
 async function loadSuggestionsAdmin() {
     try {
-        const snap = await get(ref(rtdb,"suggestions"));
-        allSuggestions = [];
+        const snap = await get(ref(rtdb,"suggestions")); allSuggestions = [];
         if (snap.exists()) { const d = snap.val(); for (let k in d) allSuggestions.push({id:k,...d[k]}); }
         allSuggestions.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
-        document.getElementById('suggestionsCountText').textContent = `${allSuggestions.length} sugestão(ões) recebida(s)`;
+        document.getElementById('suggestionsCountText').textContent = `${allSuggestions.length} sugestão(ões)`;
         renderSuggestionsList();
     } catch(e) { showMsg('Erro: '+e.message,'error'); }
 }
 
 function renderSuggestionsList() {
     const c = document.getElementById('suggestionsAdminList'); c.innerHTML = '';
-    if (allSuggestions.length === 0) { c.innerHTML = '<p style="text-align:center;color:#666;padding:30px;">Nenhuma sugestão ainda.</p>'; return; }
+    if (allSuggestions.length === 0) { c.innerHTML = '<p style="text-align:center;color:#666;padding:30px;">Nenhuma sugestão.</p>'; return; }
     allSuggestions.forEach(s => {
         const d = document.createElement('div'); d.className = 'suggestion-box';
         const date = s.timestamp ? new Date(s.timestamp).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '?';
-        const checkboxHtml = suggestionsSelectMode ? `<input type="checkbox" class="suggestion-checkbox" data-id="${s.id}" ${selectedSuggestionIds.has(s.id)?'checked':''}>` : '';
-        const deleteBtn = !suggestionsSelectMode ? `<button class="btn-danger" style="font-size:10px;padding:4px 8px;" onclick="deleteSingleSuggestion('${s.id}')">🗑️</button>` : '';
-        d.innerHTML = `<div class="sg-header"><div style="display:flex;align-items:center;gap:8px;">${checkboxHtml}<div><div class="sg-user">${s.userName||'Anônimo'}</div><div class="sg-email">${s.userEmail||''}</div></div></div><div style="display:flex;align-items:center;gap:6px;"><span class="sg-date">${date}</span>${deleteBtn}</div></div><div class="sg-text">${s.text}</div>`;
-        if (suggestionsSelectMode) {
-            const cb = d.querySelector('.suggestion-checkbox');
-            if (cb) cb.onchange = () => { if (cb.checked) selectedSuggestionIds.add(s.id); else selectedSuggestionIds.delete(s.id); updateDeleteSelectedBtn(); };
-        }
+        const cb = suggestionsSelectMode ? `<input type="checkbox" class="suggestion-checkbox" data-id="${s.id}" ${selectedSuggestionIds.has(s.id)?'checked':''}>` : '';
+        const del = !suggestionsSelectMode ? `<button class="btn-danger" style="font-size:10px;padding:4px 8px;" onclick="deleteSingleSuggestion('${s.id}')">🗑️</button>` : '';
+        d.innerHTML = `<div class="sg-header"><div style="display:flex;align-items:center;gap:8px;">${cb}<div><div class="sg-user">${s.userName||'Anônimo'}</div><div class="sg-email">${s.userEmail||''}</div></div></div><div style="display:flex;align-items:center;gap:6px;"><span class="sg-date">${date}</span>${del}</div></div><div class="sg-text">${s.text}</div>`;
+        if (suggestionsSelectMode) { const chk = d.querySelector('.suggestion-checkbox'); if (chk) chk.onchange = () => { if (chk.checked) selectedSuggestionIds.add(s.id); else selectedSuggestionIds.delete(s.id); updateDeleteSelectedBtn(); }; }
         c.appendChild(d);
     });
 }
 
-function updateDeleteSelectedBtn() {
-    const btn = document.getElementById('btnDeleteSelectedSuggestions');
-    if (selectedSuggestionIds.size > 0) btn.textContent = `🗑️ Apagar ${selectedSuggestionIds.size} Selecionado(s)`;
-    else btn.textContent = '🗑️ Apagar Selecionados';
-}
-
-function enterSelectMode() {
-    suggestionsSelectMode = true; selectedSuggestionIds.clear();
-    document.getElementById('btnToggleSelectMode').classList.add('hidden');
-    document.getElementById('btnDeleteSelectedSuggestions').classList.remove('hidden');
-    document.getElementById('btnSelectAllSuggestions').classList.remove('hidden');
-    document.getElementById('btnCancelSelectMode').classList.remove('hidden');
-    renderSuggestionsList();
-}
-
-function exitSelectMode() {
-    suggestionsSelectMode = false; selectedSuggestionIds.clear();
-    document.getElementById('btnToggleSelectMode').classList.remove('hidden');
-    document.getElementById('btnDeleteSelectedSuggestions').classList.add('hidden');
-    document.getElementById('btnSelectAllSuggestions').classList.add('hidden');
-    document.getElementById('btnCancelSelectMode').classList.add('hidden');
-    renderSuggestionsList();
-}
-
+function updateDeleteSelectedBtn() { const b = document.getElementById('btnDeleteSelectedSuggestions'); b.textContent = selectedSuggestionIds.size > 0 ? `🗑️ Apagar ${selectedSuggestionIds.size}` : '🗑️ Apagar Selecionados'; }
+function enterSelectMode() { suggestionsSelectMode=true; selectedSuggestionIds.clear(); document.getElementById('btnToggleSelectMode').classList.add('hidden'); document.getElementById('btnDeleteSelectedSuggestions').classList.remove('hidden'); document.getElementById('btnSelectAllSuggestions').classList.remove('hidden'); document.getElementById('btnCancelSelectMode').classList.remove('hidden'); renderSuggestionsList(); }
+function exitSelectMode() { suggestionsSelectMode=false; selectedSuggestionIds.clear(); document.getElementById('btnToggleSelectMode').classList.remove('hidden'); document.getElementById('btnDeleteSelectedSuggestions').classList.add('hidden'); document.getElementById('btnSelectAllSuggestions').classList.add('hidden'); document.getElementById('btnCancelSelectMode').classList.add('hidden'); renderSuggestionsList(); }
 document.getElementById('btnToggleSelectMode').onclick = enterSelectMode;
 document.getElementById('btnCancelSelectMode').onclick = exitSelectMode;
-
-document.getElementById('btnSelectAllSuggestions').onclick = () => {
-    if (selectedSuggestionIds.size === allSuggestions.length) { selectedSuggestionIds.clear(); }
-    else { allSuggestions.forEach(s => selectedSuggestionIds.add(s.id)); }
-    updateDeleteSelectedBtn(); renderSuggestionsList();
-};
-
-document.getElementById('btnDeleteSelectedSuggestions').onclick = async () => {
-    if (selectedSuggestionIds.size === 0) { showMsg('Selecione ao menos 1!','error'); return; }
-    if (!confirm(`Apagar ${selectedSuggestionIds.size} sugestão(ões)?`)) return;
-    try {
-        const promises = []; selectedSuggestionIds.forEach(id => promises.push(remove(ref(rtdb,"suggestions/"+id))));
-        await Promise.all(promises);
-        showMsg(`${selectedSuggestionIds.size} sugestão(ões) apagada(s)!`,'success');
-        exitSelectMode(); await loadSuggestionsAdmin();
-    } catch(e) { showMsg('Erro: '+e.message,'error'); }
-};
-
-window.deleteSingleSuggestion = async (id) => {
-    if (!confirm('Apagar esta sugestão?')) return;
-    try { await remove(ref(rtdb,"suggestions/"+id)); showMsg('Apagada!','success'); await loadSuggestionsAdmin(); }
-    catch(e) { showMsg('Erro: '+e.message,'error'); }
-};
+document.getElementById('btnSelectAllSuggestions').onclick = () => { if (selectedSuggestionIds.size===allSuggestions.length) selectedSuggestionIds.clear(); else allSuggestions.forEach(s=>selectedSuggestionIds.add(s.id)); updateDeleteSelectedBtn(); renderSuggestionsList(); };
+document.getElementById('btnDeleteSelectedSuggestions').onclick = async () => { if (selectedSuggestionIds.size===0){showMsg('Selecione!','error');return;} if(!confirm(`Apagar ${selectedSuggestionIds.size}?`))return; try{const p=[];selectedSuggestionIds.forEach(id=>p.push(remove(ref(rtdb,"suggestions/"+id))));await Promise.all(p);showMsg('Apagado!','success');exitSelectMode();await loadSuggestionsAdmin();}catch(e){showMsg('Erro: '+e.message,'error');} };
+window.deleteSingleSuggestion = async (id) => { if(!confirm('Apagar?'))return; try{await remove(ref(rtdb,"suggestions/"+id));showMsg('Apagada!','success');await loadSuggestionsAdmin();}catch(e){showMsg('Erro: '+e.message,'error');} };
 
 // ========== STORAGE ==========
 document.getElementById('btnCloseStorage').onclick = () => document.getElementById('storageModal').classList.add('hidden');
-
 async function loadStorageInfo() {
-    const container = document.getElementById('storageContent');
-    container.innerHTML = '<p style="text-align:center;color:#aaa;">⏳ Calculando uso real...</p>';
+    const c = document.getElementById('storageContent'); c.innerHTML = '<p style="text-align:center;color:#aaa;">⏳ Calculando...</p>';
     try {
-        const rootSnap = await get(ref(rtdb));
-        const rootData = rootSnap.exists() ? rootSnap.val() : {};
-        const totalBytes = estimateJsonBytes(rootData);
-        const catalogBytes = rootData.catalog ? estimateJsonBytes(rootData.catalog) : 0;
-        const usersBytes = rootData.users ? estimateJsonBytes(rootData.users) : 0;
-        const suggestionsBytes = rootData.suggestions ? estimateJsonBytes(rootData.suggestions) : 0;
-        const otherBytes = Math.max(0, totalBytes - catalogBytes - usersBytes - suggestionsBytes);
-        const catalogCount = rootData.catalog ? Object.keys(rootData.catalog).length : 0;
-        const usersCount = rootData.users ? Object.keys(rootData.users).length : 0;
-        const suggestionsCount = rootData.suggestions ? Object.keys(rootData.suggestions).length : 0;
-        const pct = Math.min(100, (totalBytes / FIREBASE_RTDB_FREE_LIMIT_BYTES) * 100);
-        let barColor = '#4caf50';
-        if (pct > 70) barColor = '#ff9800';
-        if (pct > 90) barColor = '#f44336';
-        container.innerHTML = `
-            <div style="margin-bottom:18px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:800;">Uso Total</span><span style="font-size:13px;font-weight:800;color:${barColor};">${pct.toFixed(2)}%</span></div>
-                <div class="storage-bar-outer"><div class="storage-bar-inner" style="width:${pct}%;background:${barColor};"></div></div>
-                <div class="storage-info"><span>${formatBytes(totalBytes)} usado</span><span>${formatBytes(FIREBASE_RTDB_FREE_LIMIT_BYTES)} limite</span></div>
-            </div>
-            <h4 style="font-size:12px;font-weight:800;margin-bottom:10px;color:var(--primary-color);">📊 Detalhamento</h4>
-            <div class="storage-detail-item"><span class="storage-label">🎬 Catálogo (${catalogCount} itens)</span><span class="storage-value">${formatBytes(catalogBytes)}</span></div>
-            <div class="storage-detail-item"><span class="storage-label">👤 Usuários (${usersCount} contas)</span><span class="storage-value">${formatBytes(usersBytes)}</span></div>
-            <div class="storage-detail-item"><span class="storage-label">💡 Sugestões (${suggestionsCount})</span><span class="storage-value">${formatBytes(suggestionsBytes)}</span></div>
-            <div class="storage-detail-item"><span class="storage-label">📁 Outros</span><span class="storage-value">${formatBytes(otherBytes)}</span></div>
-            <div class="storage-detail-item" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;"><span class="storage-label" style="font-weight:800;color:#fff;">TOTAL</span><span class="storage-value" style="color:${barColor};">${formatBytes(totalBytes)}</span></div>
-            <div class="info-tip" style="margin-top:14px;">💡 Firebase RTDB (Spark/Free) permite até 1 GB. Imagens Base64 ocupam bastante. Use URLs externas quando possível.</div>
-        `;
-    } catch(e) { container.innerHTML = `<p style="text-align:center;color:#ff5252;">❌ Erro: ${e.message}</p>`; }
+        const snap = await get(ref(rtdb)); const rd = snap.exists()?snap.val():{};
+        const tb=estimateJsonBytes(rd), cb=rd.catalog?estimateJsonBytes(rd.catalog):0, ub=rd.users?estimateJsonBytes(rd.users):0, sb=rd.suggestions?estimateJsonBytes(rd.suggestions):0;
+        const ob=Math.max(0,tb-cb-ub-sb), cc=rd.catalog?Object.keys(rd.catalog).length:0, uc=rd.users?Object.keys(rd.users).length:0, sc=rd.suggestions?Object.keys(rd.suggestions).length:0;
+        const pct=Math.min(100,(tb/FIREBASE_RTDB_FREE_LIMIT_BYTES)*100); let bc='#4caf50'; if(pct>70)bc='#ff9800'; if(pct>90)bc='#f44336';
+        c.innerHTML = `<div style="margin-bottom:18px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;font-weight:800;">Uso Total</span><span style="font-size:13px;font-weight:800;color:${bc};">${pct.toFixed(2)}%</span></div><div class="storage-bar-outer"><div class="storage-bar-inner" style="width:${pct}%;background:${bc};"></div></div><div class="storage-info"><span>${formatBytes(tb)} usado</span><span>${formatBytes(FIREBASE_RTDB_FREE_LIMIT_BYTES)} limite</span></div></div><h4 style="font-size:12px;font-weight:800;margin-bottom:10px;color:var(--primary-color);">📊 Detalhamento</h4><div class="storage-detail-item"><span class="storage-label">🎬 Catálogo (${cc})</span><span class="storage-value">${formatBytes(cb)}</span></div><div class="storage-detail-item"><span class="storage-label">👤 Usuários (${uc})</span><span class="storage-value">${formatBytes(ub)}</span></div><div class="storage-detail-item"><span class="storage-label">💡 Sugestões (${sc})</span><span class="storage-value">${formatBytes(sb)}</span></div><div class="storage-detail-item"><span class="storage-label">📁 Outros</span><span class="storage-value">${formatBytes(ob)}</span></div><div class="storage-detail-item" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;"><span class="storage-label" style="font-weight:800;color:#fff;">TOTAL</span><span class="storage-value" style="color:${bc};">${formatBytes(tb)}</span></div>`;
+    } catch(e) { c.innerHTML = `<p style="color:#ff5252;">❌ ${e.message}</p>`; }
 }
 
 // ========== PROFILE ==========
@@ -615,48 +583,112 @@ document.getElementById('btnSaveProfile').onclick = async () => {
     const data={name:n||'',bio:b||'',favGenre:fg||'Ação',photo:(ph&&!ph.includes('window.location'))?ph:'',banner:(bn&&!bn.includes('window.location'))?bn:''};
     try {
         await set(ref(rtdb,"users/"+user.uid),data);
-        if(n) localStorage.setItem('masterflix_user_name',n); if(b) localStorage.setItem('masterflix_user_bio',b); if(fg) localStorage.setItem('masterflix_user_fav_genre',fg);
-        if(data.photo) localStorage.setItem('masterflix_user_avatar',data.photo); if(data.banner) localStorage.setItem('masterflix_user_banner',data.banner);
-        updateUserAvatarUI(data); showMsg('Perfil salvo!','success'); document.getElementById('profileModal').classList.add('hidden');
+        // Salva no cache por UID
+        if(n) setUserCache('name',n);
+        if(b) setUserCache('bio',b);
+        if(fg) setUserCache('fav_genre',fg);
+        if(data.photo) setUserCache('avatar',data.photo);
+        if(data.banner) setUserCache('banner',data.banner);
+        updateUserAvatarUI(data);
+        showMsg('Perfil salvo!','success');
+        document.getElementById('profileModal').classList.add('hidden');
     } catch(e) { showMsg('Erro: '+e.message,'error'); }
 };
 
-async function loadUserProfile(user) { if(!user)return; try{const s=await get(ref(rtdb,"users/"+user.uid));if(s.exists())updateUserAvatarUI(s.val());else updateUserAvatarUI({});}catch(e){console.error(e);} }
+async function loadUserProfile(user) {
+    if(!user) return;
+    try {
+        const s = await get(ref(rtdb,"users/"+user.uid));
+        if(s.exists()) {
+            const data = s.val();
+            // Atualiza cache local POR USUÁRIO
+            if(data.name) setUserCache('name', data.name);
+            if(data.bio) setUserCache('bio', data.bio);
+            if(data.favGenre) setUserCache('fav_genre', data.favGenre);
+            if(data.photo) setUserCache('avatar', data.photo);
+            if(data.banner) setUserCache('banner', data.banner);
+            updateUserAvatarUI(data);
+        } else {
+            updateUserAvatarUI({});
+        }
+    } catch(e) { console.error(e); updateUserAvatarUI({}); }
+}
+
+function resetProfileUI() {
+    // Reseta TUDO da interface de perfil para estado limpo
+    document.getElementById('avatarText').innerText = 'U';
+    document.getElementById('avatarImg').classList.add('hidden');
+    document.getElementById('avatarText').classList.remove('hidden');
+    document.getElementById('profileAvatarBigText').innerText = 'U';
+    document.getElementById('profileAvatarBigImg').classList.add('hidden');
+    document.getElementById('profileAvatarBigText').classList.remove('hidden');
+    document.getElementById('profileNameDisplay').innerText = 'Usuário';
+    document.getElementById('profileNameInput').value = '';
+    document.getElementById('profileBioDisplay').innerText = '"Maratonando!"';
+    document.getElementById('profileBioInput').value = '';
+    document.getElementById('profileFavGenreInput').value = 'Ação';
+    document.getElementById('profileEmailDisplay').innerText = '';
+    document.getElementById('profileBannerImg').src = 'https://via.placeholder.com/600x200?text=Banner';
+    document.getElementById('profilePhotoPreview').classList.add('hidden');
+    document.getElementById('profileBannerPreview').classList.add('hidden');
+    document.getElementById('sidebarUserName').innerText = 'Usuário';
+    document.getElementById('sidebarUserEmail').innerText = 'email@exemplo.com';
+    const sa = document.getElementById('sidebarAvatar');
+    sa.innerHTML = '<span>U</span>';
+}
 
 function updateUserAvatarUI(data={}) {
-    const un=data.name||localStorage.getItem('masterflix_user_name'), ub=data.bio||localStorage.getItem('masterflix_user_bio'), ug=data.favGenre||localStorage.getItem('masterflix_user_fav_genre');
-    const av=data.photo||localStorage.getItem('masterflix_user_avatar'), bn=data.banner||localStorage.getItem('masterflix_user_banner');
-    const user=auth.currentUser, letter=un?un.charAt(0).toUpperCase():(user?user.email.charAt(0).toUpperCase():'U');
-    if(un){document.getElementById('profileNameDisplay').innerText=un;document.getElementById('profileNameInput').value=un;document.getElementById('sidebarUserName').innerText=un;}else if(user)document.getElementById('sidebarUserName').innerText=user.email.split('@')[0];
-    if(user) document.getElementById('sidebarUserEmail').innerText=user.email;
-    if(ub){document.getElementById('profileBioDisplay').innerText=`"${ub}"`;document.getElementById('profileBioInput').value=ub;}
-    if(ug) document.getElementById('profileFavGenreInput').value=ug;
-    if(bn){document.getElementById('profileBannerImg').src=bn;document.getElementById('profileBannerPreview').src=bn;document.getElementById('profileBannerPreview').classList.remove('hidden');}
-    const sa=document.getElementById('sidebarAvatar'); sa.innerHTML='';
-    if(av){
-        document.getElementById('avatarImg').src=av;document.getElementById('avatarImg').classList.remove('hidden');document.getElementById('avatarText').classList.add('hidden');
-        document.getElementById('profileAvatarBigImg').src=av;document.getElementById('profileAvatarBigImg').classList.remove('hidden');document.getElementById('profileAvatarBigText').classList.add('hidden');
-        document.getElementById('profilePhotoPreview').src=av;document.getElementById('profilePhotoPreview').classList.remove('hidden');
+    // Lê SOMENTE do Firebase data OU do cache do USUÁRIO ATUAL
+    const un = data.name || getUserCache('name') || '';
+    const ub = data.bio || getUserCache('bio') || '';
+    const ug = data.favGenre || getUserCache('fav_genre') || '';
+    const av = data.photo || getUserCache('avatar') || '';
+    const bn = data.banner || getUserCache('banner') || '';
+    const user = auth.currentUser;
+    const letter = un ? un.charAt(0).toUpperCase() : (user ? user.email.charAt(0).toUpperCase() : 'U');
+
+    if(un) {
+        document.getElementById('profileNameDisplay').innerText = un;
+        document.getElementById('profileNameInput').value = un;
+        document.getElementById('sidebarUserName').innerText = un;
+    } else if(user) {
+        document.getElementById('sidebarUserName').innerText = user.email.split('@')[0];
+        document.getElementById('profileNameDisplay').innerText = user.email.split('@')[0];
+    }
+
+    if(user) document.getElementById('sidebarUserEmail').innerText = user.email;
+    if(ub) { document.getElementById('profileBioDisplay').innerText = `"${ub}"`; document.getElementById('profileBioInput').value = ub; }
+    if(ug) document.getElementById('profileFavGenreInput').value = ug;
+    if(bn) {
+        document.getElementById('profileBannerImg').src = bn;
+        document.getElementById('profileBannerPreview').src = bn;
+        document.getElementById('profileBannerPreview').classList.remove('hidden');
+    } else {
+        document.getElementById('profileBannerImg').src = 'https://via.placeholder.com/600x200?text=Banner';
+        document.getElementById('profileBannerPreview').classList.add('hidden');
+    }
+
+    const sa = document.getElementById('sidebarAvatar'); sa.innerHTML='';
+    if(av) {
+        document.getElementById('avatarImg').src=av; document.getElementById('avatarImg').classList.remove('hidden'); document.getElementById('avatarText').classList.add('hidden');
+        document.getElementById('profileAvatarBigImg').src=av; document.getElementById('profileAvatarBigImg').classList.remove('hidden'); document.getElementById('profileAvatarBigText').classList.add('hidden');
+        document.getElementById('profilePhotoPreview').src=av; document.getElementById('profilePhotoPreview').classList.remove('hidden');
         const img=document.createElement('img');img.src=av;sa.appendChild(img);
     } else {
-        document.getElementById('avatarText').innerText=letter;document.getElementById('avatarImg').classList.add('hidden');document.getElementById('avatarText').classList.remove('hidden');
-        document.getElementById('profileAvatarBigText').innerText=letter;document.getElementById('profileAvatarBigImg').classList.add('hidden');document.getElementById('profileAvatarBigText').classList.remove('hidden');
+        document.getElementById('avatarText').innerText=letter; document.getElementById('avatarImg').classList.add('hidden'); document.getElementById('avatarText').classList.remove('hidden');
+        document.getElementById('profileAvatarBigText').innerText=letter; document.getElementById('profileAvatarBigImg').classList.add('hidden'); document.getElementById('profileAvatarBigText').classList.remove('hidden');
+        document.getElementById('profilePhotoPreview').classList.add('hidden');
         sa.innerHTML=`<span>${letter}</span>`;
     }
 }
 
 async function handleLogout() {
     try {
+        currentUserUid = null;
         await signOut(auth);
-        // Limpa dados locais do perfil ao sair
-        localStorage.removeItem('masterflix_user_name');
-        localStorage.removeItem('masterflix_user_bio');
-        localStorage.removeItem('masterflix_user_fav_genre');
-        localStorage.removeItem('masterflix_user_avatar');
-        localStorage.removeItem('masterflix_user_banner');
+        resetProfileUI();
         document.getElementById('profileModal').classList.add('hidden');
         closeSidebar();
-        // Reseta UI
         activeItem = null;
         mediaCatalog = [];
         isAdmin = false;
@@ -665,112 +697,52 @@ async function handleLogout() {
 }
 document.getElementById('btnLogout').onclick = handleLogout;
 
-// ====================================================================
-// ========== AUTH — SISTEMA DE LOGIN/CADASTRO CORRIGIDO ==============
-// ====================================================================
+// ========== AUTH ==========
 document.getElementById('toggleAuthMode').onclick = () => {
     isSignUpMode = !isSignUpMode;
     document.getElementById('authSubtitle').innerText = isSignUpMode ? 'Crie sua conta para continuar' : 'Entre na sua conta para continuar';
     document.getElementById('btnAuthSubmit').innerText = isSignUpMode ? 'Criar Conta' : 'Entrar na Conta';
     document.getElementById('toggleAuthMode').innerText = isSignUpMode ? 'Já tem uma conta? Entrar' : 'Não tem uma conta? Crie agora';
-    // Limpa campos ao trocar modo
     document.getElementById('authEmail').value = '';
     document.getElementById('authPassword').value = '';
 };
 
 document.getElementById('authForm').onsubmit = async (e) => {
     e.preventDefault();
-
-    // Previne duplo clique
     if (authProcessing) return;
     authProcessing = true;
-
     const submitBtn = document.getElementById('btnAuthSubmit');
     const originalText = submitBtn.innerText;
     submitBtn.innerText = '⏳ Aguarde...';
     submitBtn.disabled = true;
-
     const email = document.getElementById('authEmail').value.trim().toLowerCase();
     const pass = document.getElementById('authPassword').value;
-
-    // Validações básicas
-    if (!email || !pass) {
-        showMsg('Preencha todos os campos!', 'error');
-        resetAuthBtn(submitBtn, originalText);
-        return;
-    }
-
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showMsg('Formato de e-mail inválido!', 'error');
-        resetAuthBtn(submitBtn, originalText);
-        return;
-    }
-
-    if (pass.length < 6) {
-        showMsg('A senha precisa ter no mínimo 6 caracteres!', 'error');
-        resetAuthBtn(submitBtn, originalText);
-        return;
-    }
+    if (!email || !pass) { showMsg('Preencha todos os campos!','error'); resetAuthBtn(submitBtn,originalText); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showMsg('E-mail inválido!','error'); resetAuthBtn(submitBtn,originalText); return; }
+    if (pass.length < 6) { showMsg('Senha: mínimo 6 caracteres!','error'); resetAuthBtn(submitBtn,originalText); return; }
 
     try {
         if (isSignUpMode) {
-            // ========== CADASTRO ==========
-            // Verifica se o email já existe ANTES de tentar criar
             try {
                 const methods = await fetchSignInMethodsForEmail(auth, email);
-                if (methods && methods.length > 0) {
-                    showMsg('Este e-mail já está cadastrado! Use "Entrar" ao invés de "Criar Conta".', 'error');
-                    resetAuthBtn(submitBtn, originalText);
-                    return;
-                }
-            } catch (checkErr) {
-                // Se der erro na verificação, continua tentando criar
-                // (alguns erros de rede podem causar isso)
-                console.log('Verificação prévia falhou, tentando criar...', checkErr.code);
-            }
+                if (methods && methods.length > 0) { showMsg('Este e-mail já está cadastrado! Use "Entrar".','error'); resetAuthBtn(submitBtn,originalText); return; }
+            } catch(chk) { console.log('Check falhou:', chk.code); }
 
-            // Cria a conta
-            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-            const newUser = userCredential.user;
-
-            // Salva dados iniciais do usuário no banco
+            const cred = await createUserWithEmailAndPassword(auth, email, pass);
             const defaultName = email.split('@')[0];
-            await set(ref(rtdb, "users/" + newUser.uid), {
-                name: defaultName,
-                bio: '',
-                favGenre: 'Ação',
-                photo: '',
-                banner: '',
-                createdAt: Date.now()
-            });
-
-            localStorage.setItem('masterflix_user_name', defaultName);
-
-            showMsg('✅ Conta criada com sucesso! Bem-vindo(a)!', 'success');
+            await set(ref(rtdb,"users/"+cred.user.uid), { name:defaultName, bio:'', favGenre:'Ação', photo:'', banner:'', createdAt:Date.now() });
+            showMsg('✅ Conta criada! Bem-vindo(a)!','success');
             document.getElementById('authOverlay').classList.add('hidden');
-
         } else {
-            // ========== LOGIN ==========
             await signInWithEmailAndPassword(auth, email, pass);
-            showMsg('✅ Bem-vindo(a) de volta!', 'success');
+            showMsg('✅ Bem-vindo(a) de volta!','success');
             document.getElementById('authOverlay').classList.add('hidden');
         }
-    } catch (err) {
-        const errorMsg = translateAuthError(err.code);
-        showMsg(errorMsg, 'error');
-        console.error('Auth Error:', err.code, err.message);
-    }
-
-    resetAuthBtn(submitBtn, originalText);
+    } catch(err) { showMsg(translateAuthError(err.code),'error'); }
+    resetAuthBtn(submitBtn,originalText);
 };
 
-function resetAuthBtn(btn, text) {
-    authProcessing = false;
-    btn.innerText = text;
-    btn.disabled = false;
-}
+function resetAuthBtn(btn, text) { authProcessing=false; btn.innerText=text; btn.disabled=false; }
 
 // ========== MODAL BUTTONS ==========
 document.getElementById('btnOpenProfile').onclick = () => document.getElementById('profileModal').classList.remove('hidden');
@@ -779,16 +751,21 @@ document.getElementById('btnCloseCreator').onclick = () => document.getElementBy
 document.getElementById('btnCloseDetails').onclick = () => { window.location.hash=''; document.getElementById('detailsModal').classList.add('hidden'); };
 
 // ========== INIT ==========
+clearLegacyCache(); // Limpa cache do formato antigo (sem UID)
 renderGenreSelector();
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        // Define o UID do usuário ATUAL — tudo agora é isolado por este UID
+        currentUserUid = user.uid;
+
+        // Reseta UI completamente antes de carregar dados do novo user
+        resetProfileUI();
+
         document.getElementById('authOverlay').classList.add('hidden');
         document.getElementById('profileEmailDisplay').innerText = user.email;
-        loadUserProfile(user);
 
         isAdmin = user.email.toLowerCase() === EXCLUSIVE_ADMIN_EMAIL.toLowerCase();
-
         if (isAdmin) {
             document.getElementById('profileAdminBadge').classList.remove('hidden');
             document.getElementById('sidebarAdminItem').classList.remove('hidden');
@@ -803,23 +780,19 @@ onAuthStateChanged(auth, (user) => {
             document.getElementById('sidebarStorageItem').classList.add('hidden');
         }
 
+        // Carrega perfil DO FIREBASE (não do cache global)
+        loadUserProfile(user);
         loadCatalog();
     } else {
-        // Usuário deslogou ou não está logado
-        document.getElementById('authOverlay').classList.remove('hidden');
+        currentUserUid = null;
         isAdmin = false;
+        resetProfileUI();
+        document.getElementById('authOverlay').classList.remove('hidden');
         document.getElementById('sidebarAdminItem').classList.add('hidden');
         document.getElementById('sidebarCreatorItem').classList.add('hidden');
         document.getElementById('sidebarSuggestionsAdminItem').classList.add('hidden');
         document.getElementById('sidebarStorageItem').classList.add('hidden');
         document.getElementById('profileAdminBadge').classList.add('hidden');
-
-        // Reseta a UI do avatar
-        document.getElementById('avatarText').innerText = 'U';
-        document.getElementById('avatarImg').classList.add('hidden');
-        document.getElementById('avatarText').classList.remove('hidden');
-
-        // Reseta formulário de auth
         document.getElementById('authEmail').value = '';
         document.getElementById('authPassword').value = '';
         isSignUpMode = false;
